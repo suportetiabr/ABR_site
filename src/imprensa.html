@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css"
+        crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="../styles/index.css" />
+    <title>Imprensa — ABR </title>
+
+    <style>
+        /* estilos específicos da página imprensa (mantêm o padrão visual da landing) */
+        .press-hero {
+            padding: 90px 0 40px;
+            background: #f7f9fc;
+            text-align: center;
+        }
+
+        .press-hero .page-title {
+            font-size: 42px;
+            font-weight: 800;
+            color: #0d1e40;
+            margin: 0;
+        }
+
+        .press-hero .title-underline {
+            width: 64px;
+            height: 4px;
+            background: #0d6efd;
+            margin: 14px auto;
+            border-radius: 3px;
+        }
+
+        .press-hero .subtitle {
+            color: #6b7380;
+            margin-top: 12px;
+            font-size: 16px;
+        }
+
+        .press-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 40px auto 120px;
+        }
+
+        .press-video {
+            max-width: 920px;
+            margin: 0 auto 60px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 22px rgba(13, 30, 64, 0.06);
+            background: #000;
+        }
+
+        .press-video iframe {
+            width: 100%;
+            height: 520px;
+            border: 0;
+            display: block;
+        }
+
+        .press-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            align-items: start;
+        }
+
+        .press-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(13, 30, 64, 0.04);
+            transition: transform .22s ease, box-shadow .22s ease;
+        }
+
+        .press-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 40px rgba(13, 30, 64, 0.08);
+        }
+
+        .press-card img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            border-radius: 10px;
+            display: block;
+            margin-bottom: 18px;
+        }
+
+        .press-card h3 {
+            margin: 0 0 8px;
+            font-size: 20px;
+            color: #0d1e40;
+            font-weight: 700;
+        }
+
+        .press-card p {
+            margin: 0;
+            color: #58606a;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        /* small meta row */
+        .press-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 14px;
+            color: #8a919a;
+            font-size: 13px;
+        }
+
+        .press-meta .date {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 980px) {
+            .press-video iframe {
+                height: 360px;
+            }
+
+            .press-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header" role="banner">
+        <div class="header-inner">
+            <div class="logo-container">
+                <img src="../assets/logo.png" class="logo" alt="Logo da Empresa" />
+                <span class="logo-text">ABR na mídia</span>
+            </div>
+
+            <nav class="menu" aria-label="Navegação principal">
+                <a href="sobre.html" class="nav-link">Sobre</a>
+                <a href="/src/" class="nav-link">Produtos</a>
+                <a href="catalog.html" class="nav-link">Catálogo</a>
+                <a href="imprensa.html" class="nav-link">Imprensa</a>
+                <a href="contato.html" class="nav-link">Contato</a>
+            </nav>
+
+            <div class="controls" role="group" aria-label="Controles do sistema">
+                <div class="controls-group">
+                    <button id="searchToggle" class="icon-btn" title="Buscar produtos">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+                    <div class="flags-container">
+                        <button id="flagToggle" class="flag-btn" aria-haspopup="true" aria-expanded="false"
+                            title="Selecionar idioma">
+                            <span class="flag-icon flag-icon-br"></span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <div id="flagMenu" class="flag-dropdown hidden" role="menu" aria-hidden="true">
+                            <button class="flag-option" data-lang="en" aria-label="English">
+                                <span class="flag-icon flag-icon-us"></span>
+                                English
+                            </button>
+                            <button class="flag-option" data-lang="es" aria-label="Español">
+                                <span class="flag-icon flag-icon-es"></span>
+                                Español
+                            </button>
+                        </div>
+                    </div>
+
+                    <button id="darkModeToggle" class="icon-btn" aria-pressed="false"
+                        title="Alternar modo escuro/claro">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="press-hero" aria-labelledby="press-title">
+            <div class="press-hero-inner">
+                <h1 id="press-title" class="page-title">Imprensa</h1>
+                <div class="title-underline"></div>
+                <p class="subtitle">Vídeos e matérias com os principais reconhecimentos e prêmios da empresa</p>
+            </div>
+        </section>
+
+        <div class="press-container" role="region" aria-label="Conteúdo de imprensa">
+
+            <div class="press-video" aria-hidden="false">
+                <iframe src="https://www.youtube.com/embed/VIDEO_ID" title="Vídeo institucional"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+                </iframe>
+            </div>
+
+            <div class="press-grid" role="list">
+
+                <article class="press-card" role="article" aria-labelledby="press-1-title">
+                    <img src="../assets/imprensa1.png" alt="Capa da matéria - ABR entre as 50 melhores" loading="lazy">
+                    <h3 id="press-1-title">ABR entre as 50 melhores</h3>
+                    <p>Reconhecimento nacional: a ABR figura entre as 50 melhores empresas do setor por excelência
+                        operacional e inovação.</p>
+                    <div class="press-meta" aria-hidden="true">
+                        <span class="date"><i class="fa-regular fa-calendar"></i> 12 Mar 2024</span>
+                        <span class="source">Revista Industrial</span>
+                    </div>
+                </article>
+
+                <article class="press-card" role="article" aria-labelledby="press-2-title">
+                    <img src="../assets/imprensa3.png" alt="Capa da matéria - Tricampeã do GM Global" loading="lazy">
+                    <h3 id="press-2-title">Tricampeã do GM Global</h3>
+                    <p>Premiação GM Global: três anos consecutivos de reconhecimento pela qualidade e confiabilidade de
+                        fornecimento para montadoras.</p>
+                    <div class="press-meta" aria-hidden="true">
+                        <span class="date"><i class="fa-regular fa-calendar"></i> 05 Jan 2024</span>
+                        <span class="source">GM Global Awards</span>
+                    </div>
+                </article>
+
+                <article class="press-card" role="article" aria-labelledby="press-3-title">
+                    <img src="../assets/imprensa2.png" alt="Capa da matéria - Nota Novo Varejo" loading="lazy">
+                    <h3 id="press-3-title">Nota Novo Varejo</h3>
+                    <p>Destaque no ranking Novo Varejo por desempenho comercial e avaliação de mercado, impulsionando
+                        a presença nos canais de varejo automotivo.</p>
+                    <div class="press-meta" aria-hidden="true">
+                        <span class="date"><i class="fa-regular fa-calendar"></i> 22 Nov 2023</span>
+                        <span class="source">Novo Varejo</span>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Sobre</h3>
+                <ul>
+                    <li><a href="sobre.html">Nossa História</a></li>
+                    <li><a href="sobre.html#estrutura">Estrutura</a></li>
+                    <li><a href="sobre.html#qualidade">Qualidade</a></li>
+                    <li><a href="#">Trabalhe Conosco</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Produtos</h3>
+                <ul>
+                    <li><a href="../index.html">Catálogo</a></li>
+                    <li><a href="catalog.html">Downloads</a></li>
+                    <li><a href="#">Aplicações</a></li>
+                    <li><a href="#">Novidades</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Suporte</h3>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Assistência Técnica</a></li>
+                    <li><a href="#">Manuais</a></li>
+                    <li><a href="#">Contato</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contato</h3>
+                <ul>
+                    <li><i class="fa-solid fa-phone"></i> (11) 99999-9999</li>
+                    <li><i class="fa-solid fa-envelope"></i> contato@empresa.com</li>
+                    <li><i class="fa-solid fa-map-marker-alt"></i> São Paulo, SP</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Empresa de Sistemas de Vedação. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="../js/index.js"></script>
+</body>
+
+</html>
