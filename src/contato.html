@@ -15,9 +15,8 @@
         crossorigin="anonymous" />
 
     <link rel="stylesheet" href="../styles/index.css" />
-    <title>Contato — Empresa</title>
-
     <link rel="stylesheet" href="../styles/contato.css" />
+    <title>Contato — Empresa</title>
 </head>
 
 <body>
@@ -38,24 +37,29 @@
 
             <div class="controls" role="group" aria-label="Controles do sistema">
                 <div class="controls-group">
-                    <button id="searchToggle" class="icon-btn" title="Buscar produtos">
+                    <button id="searchToggle" class="icon-btn" aria-label="Buscar produtos" title="Buscar produtos"
+                        aria-expanded="false">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
 
                     <div class="flags-container">
                         <button id="flagToggle" class="flag-btn" aria-haspopup="true" aria-expanded="false"
                             title="Selecionar idioma">
-                            <span class="flag-icon flag-icon-br"></span>
-                            <i class="fa-solid fa-chevron-down"></i>
+                            <span class="flag-icon flag-icon-br" aria-hidden="true"></span>
+                            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
                         </button>
 
                         <div id="flagMenu" class="flag-dropdown hidden" role="menu" aria-hidden="true">
+                            <button class="flag-option" data-lang="pt" aria-label="Português">
+                                <span class="flag-icon flag-icon-br" aria-hidden="true"></span>
+                                Português
+                            </button>
                             <button class="flag-option" data-lang="en" aria-label="English">
-                                <span class="flag-icon flag-icon-us"></span>
+                                <span class="flag-icon flag-icon-us" aria-hidden="true"></span>
                                 English
                             </button>
                             <button class="flag-option" data-lang="es" aria-label="Español">
-                                <span class="flag-icon flag-icon-es"></span>
+                                <span class="flag-icon flag-icon-es" aria-hidden="true"></span>
                                 Español
                             </button>
                         </div>
@@ -188,7 +192,7 @@
         </div>
     </footer>
 
-    <script src="../js/contato.js"></script>
+    <script src="../js/index.js"></script>
 </body>
 
 </html>
