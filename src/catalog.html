@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css"
+        crossorigin="anonymous" />
+
+    <link rel="stylesheet" href="../styles/index.css" />
+    <title>Catálogo — Produtos Técnicos</title>
+</head>
+
+<body>
+
+    <header class="header" role="banner">
+        <div class="header-inner">
+            <div class="logo-container">
+                <img src="../assets/logo.png" class="logo" alt="Logo da Empresa" />
+                <span class="logo-text">Sistemas de Vedação</span>
+            </div>
+
+            <nav class="menu" aria-label="Navegação principal">
+                <a href="sobre.html" class="nav-link">Sobre</a>
+                <a href="../index.html" class="nav-link">Produtos</a>
+                <a href="catalog.html" class="nav-link active">Catálogo</a>
+                <a href="#" class="nav-link">Imprensa</a>
+                <a href="#" class="nav-link">Contato</a>
+            </nav>
+
+            <div class="controls" role="group" aria-label="Controles do sistema">
+                <div class="controls-group">
+                    <button id="searchToggle" class="icon-btn" title="Buscar produtos">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+                    <div class="flags-container">
+                        <button id="flagToggle" class="flag-btn" aria-haspopup="true" aria-expanded="false"
+                            title="Selecionar idioma">
+                            <span class="flag-icon flag-icon-br"></span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <div id="flagMenu" class="flag-dropdown hidden" role="menu" aria-hidden="true">
+                            <button class="flag-option" data-lang="en" aria-label="English">
+                                <span class="flag-icon flag-icon-us"></span>
+                                English
+                            </button>
+                            <button class="flag-option" data-lang="es" aria-label="Español">
+                                <span class="flag-icon flag-icon-es"></span>
+                                Español
+                            </button>
+                        </div>
+                    </div>
+
+                    <button id="darkModeToggle" class="icon-btn" aria-pressed="false"
+                        title="Alternar modo escuro/claro">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="catalog-container">
+            <!-- Seção de Introdução do Catálogo -->
+            <section class="catalog-hero">
+                <div class="hero-content">
+                    <h1 class="catalog-title">Catálogo</h1>
+                    <div class="title-underline"></div>
+
+                    <div class="catalog-description">
+                        <p>Nosso catálogo visualmente contém todos nossos produtos disponíveis com descrição e fotos das
+                            peças. Faça o download ou acesse nosso catálogo web.</p>
+                    </div>
+
+                    <div class="catalog-actions">
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Acesso Web</h3>
+                                <p>Navegue por todos os produtos online com busca avançada e filtros</p>
+                                <div class="action-link">
+                                    <a href="https://www.titles.com/legis1" target="_blank" class="link-with-icon">
+                                        <span>www.titles.com/legis1</span>
+                                        <i class="fa-solid fa-external-link-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fa-solid fa-download"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Download PDF</h3>
+                                <p>Catálogo completo em PDF para consulta offline</p>
+                                <div class="action-link">
+                                    <a href="https://www.titles.com/testel" target="_blank" class="link-with-icon">
+                                        <span>www.titles.com/testel</span>
+                                        <i class="fa-solid fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção de Formatos do Catálogo -->
+            <section class="catalog-formats">
+                <div class="section-header">
+                    <h2 class="section-title">Formatos Disponíveis</h2>
+                    <p class="section-subtitle">Escolha o formato que melhor atende suas necessidades</p>
+                </div>
+
+                <div class="formats-grid">
+                    <div class="format-card">
+                        <div class="format-header">
+                            <div class="format-badge digital">Digital</div>
+                            <i class="format-icon fa-solid fa-laptop"></i>
+                        </div>
+                        <div class="format-body">
+                            <h3>Catálogo Web</h3>
+                            <ul class="format-features">
+                                <li><i class="fa-solid fa-check"></i> Busca em tempo real</li>
+                                <li><i class="fa-solid fa-check"></i> Filtros avançados</li>
+                                <li><i class="fa-solid fa-check"></i> Atualizações automáticas</li>
+                                <li><i class="fa-solid fa-check"></i> Acesso de qualquer dispositivo</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="format-card">
+                        <div class="format-header">
+                            <div class="format-badge pdf">PDF</div>
+                            <i class="format-icon fa-solid fa-file-pdf"></i>
+                        </div>
+                        <div class="format-body">
+                            <h3>Download Completo</h3>
+                            <ul class="format-features">
+                                <li><i class="fa-solid fa-check"></i> Consulta offline</li>
+                                <li><i class="fa-solid fa-check"></i> 500+ páginas</li>
+                                <li><i class="fa-solid fa-check"></i> Índice detalhado</li>
+                                <li><i class="fa-solid fa-check"></i> Especificações técnicas</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="format-card">
+                        <div class="format-header">
+                            <div class="format-badge print">Impresso</div>
+                            <i class="format-icon fa-solid fa-book"></i>
+                        </div>
+                        <div class="format-body">
+                            <h3>Versão Impressa</h3>
+                            <ul class="format-features">
+                                <li><i class="fa-solid fa-check"></i> Entrega física</li>
+                                <li><i class="fa-solid fa-check"></i> Encadernação profissional</li>
+                                <li><i class="fa-solid fa-check"></i> Papel de alta qualidade</li>
+                                <li><i class="fa-solid fa-check"></i> Solicite seu exemplar</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção de Produtos em Destaque -->
+            <section class="featured-products">
+                <div class="section-header">
+                    <h2 class="section-title">Produtos em Destaque</h2>
+                    <p class="section-subtitle">Conheça alguns dos nossos principais produtos</p>
+                </div>
+
+                <div class="products-grid">
+                    <div class="product-card-large">
+                        <div class="product-image">
+                            <img src="../assets/D229.png" alt="Junta do Cabeçote D229">
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Junta do Cabeçote</span>
+                            <h3>D229</h3>
+                            <p>Vedação premium para motores diesel com alta resistência térmica</p>
+                            <a href="../index.html" class="btn btn-outline">Ver Detalhes</a>
+                        </div>
+                    </div>
+
+                    <div class="product-card-large">
+                        <div class="product-image">
+                            <img src="../assets/VEDADOR_X12.png" alt="Vedador X12">
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Vedador Especial</span>
+                            <h3>X12</h3>
+                            <p>Projetado para alta temperatura e pressão em aplicações industriais</p>
+                            <a href="../index.html" class="btn btn-outline">Ver Detalhes</a>
+                        </div>
+                    </div>
+
+                    <div class="product-card-large">
+                        <div class="product-image">
+                            <img src="../assets/x10.png" alt="Vedador X10">
+                        </div>
+                        <div class="product-info">
+                            <span class="product-category">Vedador Compacto</span>
+                            <h3>X10</h3>
+                            <p>Solução econômica para espaços limitados sem comprometer a qualidade</p>
+                            <a href="../index.html" class="btn btn-outline">Ver Detalhes</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Seção de Ajuda -->
+            <section class="catalog-help">
+                <div class="help-container">
+                    <div class="help-content">
+                        <h2>Precisa de Ajuda?</h2>
+                        <p>Nossa equipe técnica está disponível para auxiliar na escolha do produto ideal para sua
+                            aplicação.</p>
+
+                        <div class="help-contacts">
+                            <div class="contact-item">
+                                <i class="fa-solid fa-phone"></i>
+                                <div>
+                                    <h4>Telefone</h4>
+                                    <p>(11) 99999-9999</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fa-solid fa-envelope"></i>
+                                <div>
+                                    <h4>E-mail</h4>
+                                    <p>catalogo@empresa.com</p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fa-solid fa-clock"></i>
+                                <div>
+                                    <h4>Horário</h4>
+                                    <p>Seg-Sex: 8h-18h</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="help-image">
+                        <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                            alt="Suporte Técnico">
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Catálogo</h3>
+                <ul>
+                    <li><a href="#">Produtos</a></li>
+                    <li><a href="#">Especificações</a></li>
+                    <li><a href="#">Downloads</a></li>
+                    <li><a href="#">Aplicações</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Empresa</h3>
+                <ul>
+                    <li><a href="sobre.html">Sobre Nós</a></li>
+                    <li><a href="#">Contato</a></li>
+                    <li><a href="#">Trabalhe Conosco</a></li>
+                    <li><a href="#">Imprensa</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Suporte</h3>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Manuais</a></li>
+                    <li><a href="#">Assistência Técnica</a></li>
+                    <li><a href="#">Garantia</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Política de Privacidade</a></li>
+                    <li><a href="#">Cookies</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Empresa de Sistemas de Vedação. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="../js/index.js"></script>
+</body>
+
+</html>

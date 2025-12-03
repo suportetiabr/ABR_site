@@ -1,319 +1,1227 @@
-// script.js
-// Roteamento por hash + slider com transição igual à referência.
-// Coloque imagens em /assets/produto1.jpg ... produto5.jpg
+// ====================
+// SISTEMA DE TEMA AVANÇADO
+// ====================
 
-const ANIM_MS = 550;
-const SLIDES = [
-    {
-        id: 0, name: "Model S", img: "../assets/ANEL_ORING.png", title: "Model S — Velocidade Urbana", desc: "Motor elétrico de última geração, autonomia de 480 km e design eficiente.", color: "#0ea5a4"
-    },
-    { id: 1, name: "Model X", img: "../assets/D229.png", title: "Model X — Espaço Premium", desc: "Capacidade família + tecnologia embarcada.", color: "#ef4444" },
-    { id: 2, name: "Model 3", img: "../assets/VEDADOR_X12.png", title: "Model 3 — Compacto Eficiente", desc: "Desempenho sólido em um corpo compacto.", color: "#3b82f6" },
-    { id: 3, name: "Roadster", img: "../assets/x10.png", title: "Roadster — Esportivo", desc: "Aceleração instantânea para quem busca adrenalina.", color: "#f59e0b" },
-];
+class ThemeManager {
+  constructor() {
+    this.theme = localStorage.getItem('theme') || this.getSystemPreference();
+    this.transitionDuration = 300;
+    this.init();
+  }
 
-// templates: cada página é um fragmento HTML injetado no #app
-const TEMPLATES = {
-    '/sobre': `
-    <section class="page page--sobre" aria-labelledby="sobre-title">
-      <div class="hero">
-        <div>
-          <p class="eyebrow">Institucional</p>
-          <h1 id="sobre-title">Quem somos — Empresa Exemplo</h1>
-          <p class="lead">Fundada em 2018, Empresa Exemplo combina design enxuto, engenharia eficiente e foco em resultados. Nossa cultura prioriza autonomia, responsabilidade e aprendizado contínuo.</p>
-          <div class="cta-row">
-            <a class="btn primary" href="#/produtos" data-route>Ver produtos</a>
-            <a class="btn ghost" href="#/contato" data-route>Fale conosco</a>
-          </div>
+  init() {
+    this.applyTheme();
+    this.setupEventListeners();
+    this.setupTransition();
+    this.setupThemePreferences();
+    this.addDarkModeUtilities();
+    this.monitorThemePerformance();
+  }
 
-          <h3 style="margin-top:1.25rem">Missão</h3>
-          <p style="color:var(--muted)">Entregar soluções digitais de alto desempenho que consumam menos recursos e gerem impacto mensurável para clientes de todos os portes.</p>
+  getSystemPreference() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
 
-          <h3 style="margin-top:1rem">Cultura</h3>
-          <ul style="color:var(--muted)">
-            <li>Autonomia responsável</li>
-            <li>Foco em resultados</li>
-            <li>Feedback contínuo</li>
-            <li>Inclusão e respeito</li>
-          </ul>
-        </div>
+  applyTheme() {
+    const startTime = Date.now();
 
-        <aside class="hero-right" aria-label="Demonstração de produto">
-          <nav class="product-nav" aria-label="Modelos disponíveis">
-            <ul id="productList">
-              ${SLIDES.map((s, i) => `<li><button data-index="${i}" class="product-link ${i === 0 ? 'active' : ''}">${s.name}</button></li>`).join('')}
-            </ul>
-          </nav>
+    // Adicionar classe de carregamento
+    document.body.classList.add('theme-loading');
 
-          <div class="slider" id="slider" aria-live="polite">
-            ${SLIDES.map((s, i) => `
-              <div class="slide ${i === 0 ? 'current' : ''}" data-index="${i}">
-                <picture>
-                  <source media="(max-width:599px)" srcset="${s.img}">
-                  <img src="${s.img}" alt="${s.title}" loading="lazy" width="1200" height="675">
-                </picture>
-                <div class="slide-info">
-                  <h3 class="slide-title">${s.title}</h3>
-                  <p class="slide-desc">${s.desc}</p>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        </aside>
-      </div>
+    // Remover ambas as classes primeiro
+    document.body.classList.remove('light-mode', 'dark-mode');
 
-      <section style="margin-top:2rem">
-        <h2>Equipe e Liderança</h2>
-        <p style="color:var(--muted)">Direção: Adriana Silva (CEO) — CTO: Rafael Costa — COO: Marina Lopes.</p>
-      </section>
-
-      <section style="margin-top:1rem">
-        <h2>Carreiras</h2>
-        <p style="color:var(--muted)">Vagas fictícias: Engenheiro Frontend, Engenheiro Backend, Product Designer. Envie CV para <strong>carreiras@exemplo.com</strong> (fictício).</p>
-      </section>
-    </section>
-  `,
-    '/produtos': `
-    <section class="page page--produtos" aria-labelledby="produtos-title">
-      <h1 id="produtos-title">Produtos — Visão geral</h1>
-      <p style="color:var(--muted)">Catálogo de produtos fictícios, cada item tem imagem em assets/ e descrição curta.</p>
-
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem">
-        ${SLIDES.map(s => `
-          <article style="padding:1rem;border-radius:10px;border:1px solid rgba(255,255,255,0.04)">
-            <img src="${s.img}" alt="${s.name}" loading="lazy" style="width:100%;height:140px;object-fit:cover;border-radius:6px">
-            <h3 style="margin:.5rem 0">${s.name}</h3>
-            <p style="color:var(--muted)">${s.desc}</p>
-            <div style="margin-top:.5rem"><a class="btn ghost" href="#/catalogo" data-route>Ver catálogo</a></div>
-          </article>
-        `).join('')}
-      </div>
-    </section>
-  `,
-    '/catalogo': `
-    <section class="page page--catalogo" aria-labelledby="catalogo-title">
-      <h1 id="catalogo-title">Catálogo</h1>
-      <p style="color:var(--muted)">PDFs e fichas técnicas otimizadas (fictícias). Exemplo de item:</p>
-      <ul style="color:var(--muted)">
-        <li>Ficha técnica — Model S (PDF fictício)</li>
-        <li>Ficha técnica — Model X (PDF fictício)</li>
-      </ul>
-    </section>
-  `,
-    '/imprensa': `
-    <section class="page page--imprensa" aria-labelledby="imprensa-title">
-      <h1 id="imprensa-title">Imprensa</h1>
-      <p style="color:var(--muted)">Sala de imprensa — notas, releases e recursos de mídia (exemplo fictício).</p>
-      <p style="color:var(--muted)">Contato de imprensa: imprensa@exemplo.com (fictício)</p>
-    </section>
-  `,
-    '/contato': `
-    <section class="page page--contato" aria-labelledby="contato-title">
-      <h1 id="contato-title">Contato</h1>
-      <p style="color:var(--muted)">Envie sua mensagem para: contato@exemplo.com — Telefone (11) 4000-0000 (fictício).</p>
-      <form style="margin-top:1rem;display:grid;gap:.6rem;max-width:520px">
-        <input name="nome" placeholder="Nome" required style="padding:.6rem;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--fg)">
-        <input type="email" name="email" placeholder="E-mail" required style="padding:.6rem;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--fg)">
-        <textarea name="mensagem" rows="4" placeholder="Mensagem" style="padding:.6rem;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--fg)"></textarea>
-        <button class="btn primary" type="submit">Enviar (fictício)</button>
-      </form>
-    </section>
-  `
-};
-
-// Router & page transitions
-const app = document.getElementById('app');
-const links = document.querySelectorAll('a[data-route]');
-const menuToggleBtn = document.getElementById('menuToggle');
-const mobileMenu = document.getElementById('mobileMenu');
-const themeToggleBtn = document.getElementById('themeToggle');
-
-function renderRoute(path, options = {}) {
-    const newHtml = TEMPLATES[path] || TEMPLATES['/sobre'];
-    const outgoing = app.firstElementChild;
-    // create incoming node
-    const incoming = document.createElement('div');
-    incoming.innerHTML = newHtml;
-    const page = incoming.firstElementChild;
-    page.classList.add('page-enter');
-    // insert before removing outgoing to animate
-    app.appendChild(page);
-    // allow screen readers to jump to main content
-    page.setAttribute('tabindex', '-1');
-
-    // trigger reflow then start enter animation
-    // remove outgoing with exit animation if exists
-    requestAnimationFrame(() => {
-        page.classList.add('page-enter-active');
-        page.classList.remove('page-enter');
-    });
-
-    if (outgoing) {
-        outgoing.classList.add('page-exit');
-        // start exit active
-        requestAnimationFrame(() => {
-            outgoing.classList.add('page-exit-active');
-        });
-        setTimeout(() => {
-            if (outgoing && outgoing.parentNode) outgoing.parentNode.removeChild(outgoing);
-            // after route changed, focus on content for accessibility
-            page.focus();
-            // if route is sobre, initialize slider
-            if (path === '/sobre') initSlider(); // safe to call multiple times
-        }, ANIM_MS + 30);
+    // Adicionar classe do tema atual
+    if (this.theme === 'dark') {
+      document.body.classList.add('dark-mode');
+      document.body.style.setProperty('--theme-transition', `${this.transitionDuration}ms`);
     } else {
-        // no outgoing (first load)
-        setTimeout(() => {
-            page.focus();
-            if (path === '/sobre') initSlider();
-        }, 60);
+      document.body.classList.add('light-mode');
     }
 
-    // update active nav highlighting
-    document.querySelectorAll('.nav-list a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + path));
-    // close mobile menu if open
-    closeMobileMenu();
-    // update hash (this keeps behavior consistent)
-    if (location.hash !== '#' + path) location.hash = path;
-}
+    // Atualizar ícone
+    this.updateIcon();
 
-// Link click handler
-links.forEach(a => {
-    a.addEventListener('click', (e) => {
-        e.preventDefault();
-        const href = a.getAttribute('href');
-        const path = href.replace('#', '') || '/sobre';
-        navigateTo(path);
-    });
-});
+    // Ajustar imagens para o tema
+    this.adjustImagesForTheme();
 
-// navigation helper
-function navigateTo(path) {
-    renderRoute(path);
-}
+    // Salvar preferência
+    localStorage.setItem('theme', this.theme);
 
-// hashchange (back/forward)
-window.addEventListener('hashchange', () => {
-    const path = location.hash.replace('#', '') || '/sobre';
-    renderRoute(path);
-});
+    // Disparar evento customizado
+    document.dispatchEvent(new CustomEvent('themechange', {
+      detail: { theme: this.theme }
+    }));
 
-// Mobile menu toggle
-menuToggleBtn.addEventListener('click', () => {
-    const expanded = menuToggleBtn.getAttribute('aria-expanded') === 'true';
-    menuToggleBtn.setAttribute('aria-expanded', String(!expanded));
-    const hidden = mobileMenu.getAttribute('aria-hidden') === 'true';
-    mobileMenu.setAttribute('aria-hidden', String(!hidden));
-    mobileMenu.style.display = hidden ? 'block' : 'none';
-});
-
-// close mobile menu
-function closeMobileMenu() {
-    menuToggleBtn.setAttribute('aria-expanded', 'false');
-    mobileMenu.setAttribute('aria-hidden', 'true');
-    mobileMenu.style.display = 'none';
-}
-
-// theme toggle (persist)
-(function () {
-    const lightClass = 'theme-light';
-    const saved = localStorage.getItem('site-theme');
-    if (saved === 'light') document.documentElement.classList.add(lightClass);
-    themeToggleBtn.addEventListener('click', () => {
-        const active = document.documentElement.classList.toggle(lightClass);
-        themeToggleBtn.setAttribute('aria-pressed', String(active));
-        localStorage.setItem('site-theme', active ? 'light' : 'dark');
-    });
-})();
-
-/* -------------------------
-   Slider (used in /sobre)
-   Transition logic matches the original reference:
-   - clicking product buttons triggers enter/exit classes
-------------------------- */
-let activeIndex = 0;
-let isAnimating = false;
-
-function initSlider() {
-    const sliderEl = document.getElementById('slider');
-    if (!sliderEl) return;
-    const productButtons = Array.from(document.querySelectorAll('.product-link'));
-    // attach listeners once
-    productButtons.forEach(btn => {
-        btn.removeEventListener('click', onProductClick);
-        btn.addEventListener('click', onProductClick);
-        btn.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
-        });
-    });
-}
-
-function onProductClick(e) {
-    const idx = Number(e.currentTarget.dataset.index);
-    transitionTo(idx);
-}
-
-function transitionTo(newIndex) {
-    if (isAnimating || newIndex === activeIndex) return;
-    isAnimating = true;
-
-    const sliderEl = document.getElementById('slider');
-    if (!sliderEl) { isAnimating = false; return; }
-
-    const outgoing = sliderEl.querySelector(`.slide[data-index="${activeIndex}"]`);
-    const incoming = sliderEl.querySelector(`.slide[data-index="${newIndex}"]`);
-    if (!incoming || !outgoing) { isAnimating = false; return; }
-
-    // update product button active state
-    document.querySelectorAll('.product-link').forEach(b => b.classList.toggle('active', Number(b.dataset.index) === newIndex));
-
-    // add classes for exit/enter (match reference)
-    outgoing.classList.add('slide-exit');
-    incoming.classList.add('slide-enter');
-
-    // force reflow
-    // eslint-disable-next-line no-unused-expressions
-    incoming.offsetHeight;
-
-    // start active transitions
-    outgoing.classList.add('slide-exit-active');
-    incoming.classList.add('slide-enter-active');
-
-    // after animation, clean up
+    // Remover classe de carregamento
     setTimeout(() => {
-        outgoing.classList.remove('current', 'slide-exit', 'slide-exit-active');
-        incoming.classList.remove('slide-enter', 'slide-enter-active');
-        incoming.classList.add('current');
-        document.documentElement.style.setProperty('--accent', SLIDES[newIndex].color);
-        activeIndex = newIndex;
-        isAnimating = false;
-    }, ANIM_MS + 20);
+      document.body.classList.remove('theme-loading');
+    }, this.transitionDuration);
+
+    // Log de performance
+    const elapsed = Date.now() - startTime;
+    if (elapsed > 50) {
+      console.warn(`Aplicação do tema levou ${elapsed}ms`);
+    }
+  }
+
+  toggleTheme() {
+    this.theme = this.theme === 'dark' ? 'light' : 'dark';
+    this.applyTheme();
+
+    // Feedback tátil
+    this.provideHapticFeedback();
+
+    // Análise de uso
+    this.trackThemeUsage();
+  }
+
+  updateIcon() {
+    const toggleBtn = document.getElementById('darkModeToggle');
+    if (!toggleBtn) return;
+
+    if (this.theme === 'dark') {
+      toggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+      toggleBtn.setAttribute('aria-label', 'Alternar para modo claro');
+      toggleBtn.setAttribute('title', 'Modo claro');
+      toggleBtn.setAttribute('aria-pressed', 'true');
+    } else {
+      toggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+      toggleBtn.setAttribute('aria-label', 'Alternar para modo escuro');
+      toggleBtn.setAttribute('title', 'Modo escuro');
+      toggleBtn.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  adjustImagesForTheme() {
+    const images = document.querySelectorAll('.product-image, .product-card img');
+    images.forEach(img => {
+      if (this.theme === 'dark') {
+        // Ajustar contraste para modo escuro
+        img.style.filter = 'brightness(0.95) contrast(1.05)';
+      } else {
+        // Remover ajustes no modo claro
+        img.style.filter = 'none';
+      }
+    });
+  }
+
+  setupEventListeners() {
+    const toggleBtn = document.getElementById('darkModeToggle');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => this.toggleTheme());
+
+      // Tooltip avançado
+      toggleBtn.addEventListener('mouseenter', () => {
+        this.showThemeTooltip(toggleBtn);
+      });
+
+      toggleBtn.addEventListener('mouseleave', () => {
+        this.hideThemeTooltip(toggleBtn);
+      });
+    }
+
+    // Ouvir mudanças do sistema
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      if (!localStorage.getItem('theme')) {
+        this.theme = e.matches ? 'dark' : 'light';
+        this.applyTheme();
+      }
+    });
+
+    // Atalho de teclado
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.altKey && e.key === 'T') {
+        e.preventDefault();
+        this.toggleTheme();
+        this.showThemeChangeFeedback();
+      }
+    });
+  }
+
+  setupTransition() {
+    // As transições já estão definidas no CSS através da variável --theme-transition
+    // Este método garante que a variável esteja definida
+    document.documentElement.style.setProperty('--theme-transition', `${this.transitionDuration}ms`);
+  }
+
+  provideHapticFeedback() {
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+
+    const toggleBtn = document.getElementById('darkModeToggle');
+    if (toggleBtn) {
+      toggleBtn.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        toggleBtn.style.transform = '';
+      }, 150);
+    }
+  }
+
+  trackThemeUsage() {
+    console.log(`Tema alterado para: ${this.theme}`);
+    // Implemente sua análise de uso aqui
+  }
+
+  setupThemePreferences() {
+    const savedPreferences = JSON.parse(localStorage.getItem('themePreferences') || '{}');
+    const preferences = {
+      autoSwitch: true,
+      schedule: null,
+      contrast: 'normal',
+      reducedMotion: false,
+      ...savedPreferences
+    };
+
+    if (preferences.reducedMotion) {
+      document.documentElement.style.setProperty('--theme-transition', '0ms');
+    }
+
+    if (preferences.contrast === 'high') {
+      document.body.classList.add('high-contrast');
+    }
+
+    document.addEventListener('themechange', (e) => {
+      preferences.lastTheme = e.detail.theme;
+      localStorage.setItem('themePreferences', JSON.stringify(preferences));
+    });
+  }
+
+  addDarkModeUtilities() {
+    // Utilitários já estão no CSS
+    console.log('Utilitários de tema carregados');
+  }
+
+  monitorThemePerformance() {
+    let themeChangeStart = 0;
+
+    document.addEventListener('themechange', () => {
+      const changeTime = Date.now() - themeChangeStart;
+      if (changeTime > 100) {
+        console.warn(`Troca de tema pode estar lenta: ${changeTime}ms`);
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'darkModeToggle' || e.target.closest('#darkModeToggle')) {
+        themeChangeStart = Date.now();
+      }
+    });
+  }
+
+  showThemeTooltip(button) {
+    const tooltip = document.createElement('div');
+    tooltip.className = 'theme-tooltip';
+    tooltip.textContent = this.theme === 'dark'
+      ? 'Clique para modo claro'
+      : 'Clique para modo escuro';
+    tooltip.style.cssText = `
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: ${this.theme === 'dark' ? 'var(--dark-surface)' : 'var(--bg-white)'};
+            color: ${this.theme === 'dark' ? 'var(--dark-text-primary)' : 'var(--text-primary)'};
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: ${this.theme === 'dark' ? 'var(--dark-shadow-md)' : 'var(--shadow-md)'};
+            border: 1px solid ${this.theme === 'dark' ? 'var(--dark-border)' : 'var(--border-light)'};
+        `;
+    button.appendChild(tooltip);
+  }
+
+  hideThemeTooltip(button) {
+    const tooltip = button.querySelector('.theme-tooltip');
+    if (tooltip) tooltip.remove();
+  }
+
+  showThemeChangeFeedback() {
+    document.body.style.boxShadow = '0 0 0 3px var(--primary)';
+    setTimeout(() => {
+      document.body.style.boxShadow = '';
+    }, 300);
+  }
+
+  getCurrentTheme() {
+    return this.theme;
+  }
+
+  setTheme(theme) {
+    if (['light', 'dark'].includes(theme)) {
+      this.theme = theme;
+      this.applyTheme();
+    }
+  }
 }
 
-/* keyboard navigation for slider (left/right) */
-document.addEventListener('keydown', (e) => {
-    if (!['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
-    // only operate when /sobre is active
-    const activePath = (location.hash.replace('#', '') || '/sobre');
-    if (activePath !== '/sobre') return;
-    const next = e.key === 'ArrowRight' ? Math.min(activeIndex + 1, SLIDES.length - 1) : Math.max(activeIndex - 1, 0);
-    if (next !== activeIndex) transitionTo(next);
+// ====================
+// SISTEMA DE PRODUTOS
+// ====================
+
+class ProductManager {
+  constructor() {
+    this.productCards = document.querySelectorAll('.product-card');
+    this.productImage = document.getElementById('productImage');
+    this.titleEl = document.getElementById('productTitle');
+    this.descEl = document.getElementById('productDescription');
+    this.indicatorValue = document.querySelector('.indicator-value');
+    this.currentProductId = 'd229';
+    this.animationInProgress = false;
+    this.init();
+  }
+
+  init() {
+    this.setupEventListeners();
+    this.setupProductObservers();
+  }
+
+  setupEventListeners() {
+    this.productCards.forEach(card => {
+      card.addEventListener('click', () => this.switchProduct(card));
+
+      card.addEventListener('mouseenter', () => {
+        if (!card.classList.contains('active')) {
+          card.style.transform = 'translateY(-4px)';
+        }
+      });
+
+      card.addEventListener('mouseleave', () => {
+        if (!card.classList.contains('active')) {
+          card.style.transform = '';
+        }
+      });
+    });
+
+    // Botões de ação
+    document.querySelector('.btn-primary')?.addEventListener('click', () => {
+      this.showQuoteModal();
+    });
+
+    document.querySelector('.btn-secondary')?.addEventListener('click', () => {
+      this.downloadSpecSheet();
+    });
+
+    // Controles de imagem
+    document.querySelectorAll('.image-btn').forEach(btn => {
+      btn.addEventListener('click', function () {
+        const action = this.querySelector('i').className;
+        if (action.includes('magnifying-glass-plus')) {
+          this.handleZoom();
+        } else if (action.includes('rotate-right')) {
+          this.handleRotate();
+        } else if (action.includes('cube')) {
+          this.show3DView();
+        }
+      }.bind(this));
+    });
+  }
+
+  async switchProduct(card) {
+    if (this.animationInProgress) return;
+
+    const productId = card.dataset.id;
+    if (productId === this.currentProductId) return;
+
+    this.animationInProgress = true;
+
+    // Remover estado ativo anterior
+    document.querySelector('.product-card.active')?.classList.remove('active');
+
+    // Adicionar estado ativo ao novo card
+    card.classList.add('active');
+
+    // Dados do novo produto
+    const newData = {
+      img: card.dataset.img,
+      title: card.dataset.title,
+      description: card.dataset.description,
+      category: card.closest('.catalog-category')?.querySelector('.category-title')?.textContent || 'Produto'
+    };
+
+    // Animação de saída
+    this.titleEl.classList.add('text-transition-out');
+    this.descEl.classList.add('text-transition-out');
+    this.productImage.classList.add('img-fade-out');
+
+    // Esperar animação de saída
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Atualizar conteúdo
+    this.productImage.src = newData.img;
+    this.productImage.alt = newData.title;
+    this.titleEl.textContent = newData.title;
+    this.descEl.textContent = newData.description;
+
+    // Atualizar indicador de categoria
+    this.indicatorValue.textContent = newData.category.replace(/[⭕🔧]/g, '').trim();
+
+    // Animação de entrada
+    this.titleEl.classList.remove('text-transition-out');
+    this.descEl.classList.remove('text-transition-out');
+    this.productImage.classList.remove('img-fade-out');
+
+    this.titleEl.classList.add('text-transition-in');
+    this.descEl.classList.add('text-transition-in');
+    this.productImage.classList.add('img-fade-in');
+
+    // Atualizar estado
+    this.currentProductId = productId;
+
+    // Ajustar imagem para o tema atual
+    if (themeManager.getCurrentTheme() === 'dark') {
+      this.productImage.style.filter = 'brightness(0.95) contrast(1.05)';
+    }
+
+    // Remover classes de animação após conclusão
+    setTimeout(() => {
+      this.titleEl.classList.remove('text-transition-in');
+      this.descEl.classList.remove('text-transition-in');
+      this.productImage.classList.remove('img-fade-in');
+      this.animationInProgress = false;
+    }, 500);
+
+    // Feedback visual
+    card.style.transform = 'scale(0.98)';
+    setTimeout(() => {
+      card.style.transform = '';
+    }, 200);
+  }
+
+  handleZoom() {
+    this.productImage.style.transform = this.productImage.style.transform === 'scale(1.5)'
+      ? 'scale(1)'
+      : 'scale(1.5)';
+  }
+
+  handleRotate() {
+    const currentRotate = parseInt(this.productImage.style.transform.replace(/[^0-9]/g, '')) || 0;
+    this.productImage.style.transform = `rotate(${currentRotate + 90}deg)`;
+  }
+
+  show3DView() {
+    this.showNotification('Visualização 3D em desenvolvimento');
+  }
+
+  showQuoteModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+            <div class="modal-content">
+                <h3>Solicitar Orçamento</h3>
+                <p>Formulário de orçamento será aberto em breve.</p>
+                <button class="btn btn-primary close-modal">Fechar</button>
+            </div>
+        `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('.close-modal').addEventListener('click', () => {
+      modal.remove();
+    });
+
+    // Fechar modal ao clicar fora
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  }
+
+  downloadSpecSheet() {
+    this.showNotification('Ficha técnica sendo baixada...');
+  }
+
+  setupProductObservers() {
+    // Observar mudanças no DOM para aplicar tema a novos elementos
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.addedNodes.length > 0) {
+          // Reconfigurar event listeners para novos elementos
+          this.setupEventListeners();
+        }
+      });
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 32px;
+            background: ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-surface)' : 'var(--primary)'};
+            color: ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-text-primary)' : 'white'};
+            padding: 16px 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-shadow-lg)' : 'var(--shadow-lg)'};
+            z-index: 2000;
+            animation: slideInRight 0.3s ease-out;
+            border: 1px solid ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-border)' : 'transparent'};
+        `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+}
+
+// ====================
+// SISTEMA DE IDIOMA
+// ====================
+
+class LanguageManager {
+  constructor() {
+    this.flagToggle = document.getElementById('flagToggle');
+    this.flagMenu = document.getElementById('flagMenu');
+    this.init();
+  }
+
+  init() {
+    this.setupEventListeners();
+    this.loadSavedLanguage();
+  }
+
+  setupEventListeners() {
+    this.flagToggle?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleFlagMenu();
+    });
+
+    document.querySelectorAll('.flag-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.selectLanguage(btn);
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      this.closeFlagMenu(e);
+    });
+  }
+
+  toggleFlagMenu() {
+    const expanded = this.flagToggle.getAttribute('aria-expanded') === 'true';
+    this.flagMenu.classList.toggle('hidden');
+    this.flagToggle.setAttribute('aria-expanded', String(!expanded));
+    this.flagMenu.setAttribute('aria-hidden', String(expanded));
+  }
+
+  selectLanguage(button) {
+    const lang = button.dataset.lang;
+    const langText = button.textContent.trim();
+
+    // Atualizar botão
+    this.flagToggle.innerHTML = `
+            <span class="flag-icon flag-icon-${lang === 'en' ? 'us' : lang}"></span>
+            ${langText.split(' ')[0]}
+            <i class="fa-solid fa-chevron-down"></i>
+        `;
+
+    // Fechar menu
+    this.flagMenu.classList.add('hidden');
+    this.flagToggle.setAttribute('aria-expanded', 'false');
+    this.flagMenu.setAttribute('aria-hidden', 'true');
+
+    // Feedback
+    this.showNotification(`Idioma alterado para ${langText}`);
+
+    // Salvar preferência
+    localStorage.setItem('language', lang);
+  }
+
+  closeFlagMenu(e) {
+    if (!this.flagMenu.classList.contains('hidden') &&
+      !this.flagToggle.contains(e.target) &&
+      !this.flagMenu.contains(e.target)) {
+      this.flagMenu.classList.add('hidden');
+      this.flagToggle.setAttribute('aria-expanded', 'false');
+      this.flagMenu.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  loadSavedLanguage() {
+    const savedLanguage = localStorage.getItem('language');
+    if (savedLanguage) {
+      const flagOption = document.querySelector(`[data-lang="${savedLanguage}"]`);
+      if (flagOption) {
+        this.selectLanguage(flagOption);
+      }
+    }
+  }
+
+  showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 32px;
+            background: ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-surface)' : 'var(--primary)'};
+            color: ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-text-primary)' : 'white'};
+            padding: 16px 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-shadow-lg)' : 'var(--shadow-lg)'};
+            z-index: 2000;
+            animation: slideInRight 0.3s ease-out;
+            border: 1px solid ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-border)' : 'transparent'};
+        `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+}
+
+// ====================
+// SISTEMA DE BUSCA
+// ====================
+
+class SearchManager {
+  constructor() {
+    this.searchToggle = document.getElementById('searchToggle');
+    this.searchActive = false;
+    this.init();
+  }
+
+  init() {
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    this.searchToggle?.addEventListener('click', () => {
+      if (!this.searchActive) {
+        this.showSearchInput();
+      }
+    });
+  }
+
+  showSearchInput() {
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Buscar produtos...';
+    searchInput.className = 'search-input';
+    searchInput.style.cssText = `
+            position: absolute;
+            right: 0;
+            top: 100%;
+            width: 300px;
+            padding: 12px 16px;
+            background: ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-surface)' : 'white'};
+            border: 2px solid var(--primary);
+            border-radius: var(--radius-md);
+            box-shadow: ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-shadow-lg)' : 'var(--shadow-lg)'};
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideDown 0.3s ease-out;
+            color: ${themeManager.getCurrentTheme() === 'dark' ? 'var(--dark-text-primary)' : 'var(--text-primary)'};
+        `;
+
+    const controlsGroup = document.querySelector('.controls-group');
+    controlsGroup.appendChild(searchInput);
+    searchInput.focus();
+    this.searchActive = true;
+
+    // Funcionalidade de busca
+    searchInput.addEventListener('input', (e) => {
+      this.performSearch(e.target.value.toLowerCase());
+    });
+
+    // Fechar ao pressionar Escape
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        searchInput.remove();
+        this.searchActive = false;
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+
+    // Fechar ao clicar fora
+    setTimeout(() => {
+      const handleClickOutside = (e) => {
+        if (!searchInput.contains(e.target) && e.target !== this.searchToggle) {
+          searchInput.remove();
+          this.searchActive = false;
+          document.removeEventListener('click', handleClickOutside);
+        }
+      };
+      document.addEventListener('click', handleClickOutside);
+    }, 100);
+  }
+
+  performSearch(searchTerm) {
+    const productCards = document.querySelectorAll('.product-card');
+
+    productCards.forEach(card => {
+      const productName = card.querySelector('.product-name').textContent.toLowerCase();
+      const productCode = card.querySelector('.product-code').textContent.toLowerCase();
+      const productSummary = card.querySelector('.product-summary').textContent.toLowerCase();
+
+      const match = productName.includes(searchTerm) ||
+        productCode.includes(searchTerm) ||
+        productSummary.includes(searchTerm);
+
+      card.style.display = match ? 'block' : 'none';
+
+      // Destacar termo de busca
+      if (searchTerm && match) {
+        this.highlightSearchTerm(card, searchTerm);
+      } else {
+        this.removeHighlights(card);
+      }
+    });
+  }
+
+  highlightSearchTerm(card, term) {
+    this.removeHighlights(card);
+
+    const elements = card.querySelectorAll('.product-name, .product-summary');
+    elements.forEach(element => {
+      const html = element.innerHTML;
+      const regex = new RegExp(`(${term})`, 'gi');
+      element.innerHTML = html.replace(regex, '<span class="search-highlight">$1</span>');
+    });
+  }
+
+  removeHighlights(card) {
+    const highlights = card.querySelectorAll('.search-highlight');
+    highlights.forEach(highlight => {
+      const parent = highlight.parentNode;
+      parent.replaceChild(document.createTextNode(highlight.textContent), highlight);
+    });
+  }
+}
+
+// ====================
+// INICIALIZAÇÃO
+// ====================
+
+// Instanciar gerenciadores
+let themeManager, productManager, languageManager, searchManager;
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Inicializar gerenciadores
+  themeManager = new ThemeManager();
+  productManager = new ProductManager();
+  languageManager = new LanguageManager();
+  searchManager = new SearchManager();
+
+  // Adicionar estilos dinâmicos
+  this.addDynamicStyles();
+
+  // Log inicial
+  console.log(`Tema inicial: ${themeManager.getCurrentTheme()}`);
+  console.log(`Preferência do sistema: ${themeManager.getSystemPreference()}`);
 });
 
-// initial load: route from hash (default /sobre)
-document.addEventListener('DOMContentLoaded', () => {
-    const initial = location.hash.replace('#', '') || '/sobre';
-    // render immediately without double animation on first load
-    app.innerHTML = TEMPLATES[initial] || TEMPLATES['/sobre'];
-    // focus for accessibility
-    const page = app.querySelector('.page');
-    if (page) page.setAttribute('tabindex', '-1');
-    if (initial === '/sobre') {
-        // slider already injected -> ensure event listeners attached
-        initSlider();
+// ====================
+// SISTEMA DE NAVEGAÇÃO ENTRE PÁGINAS
+// ====================
+
+class NavigationManager {
+  constructor() {
+    this.currentPage = this.getCurrentPage();
+    this.init();
+  }
+
+  init() {
+    this.highlightCurrentPage();
+    this.setupNavigation();
+  }
+
+  getCurrentPage() {
+    const path = window.location.pathname;
+    if (path.includes('catalog.html')) return 'catalog';
+    if (path.includes('sobre.html')) return 'sobre';
+    return 'index';
+  }
+
+  highlightCurrentPage() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+
+      const href = link.getAttribute('href');
+      if (!href) return;
+
+      if ((this.currentPage === 'index' && href.includes('index.html')) ||
+        (this.currentPage === 'catalog' && href.includes('catalog.html')) ||
+        (this.currentPage === 'sobre' && href.includes('sobre.html'))) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  setupNavigation() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('#')) {
+          // Se não for link externo, permitir navegação normal
+          if (!href.includes('http') && !href.includes('www.')) {
+            e.preventDefault();
+            window.location.href = href;
+          }
+        }
+      });
+    });
+  }
+}
+
+// ====================
+// FUNCIONALIDADES ESPECÍFICAS DO CATÁLOGO
+// ====================
+
+class CatalogFeatures {
+  constructor() {
+    if (document.querySelector('.catalog-container')) {
+      this.init();
     }
-    // set nav active
-    document.querySelectorAll('.nav-list a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + initial));
-    // make sure hash is set
-    if (!location.hash) location.hash = initial;
+  }
+
+  init() {
+    this.setupDownloadButtons();
+    this.setupCopyLinks();
+    this.setupCatalogSearch();
+  }
+
+  setupDownloadButtons() {
+    const downloadButtons = document.querySelectorAll('[href*="download"]');
+    downloadButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        if (!button.href.includes('http')) {
+          e.preventDefault();
+          this.showDownloadModal();
+        }
+      });
+    });
+  }
+
+  setupCopyLinks() {
+    const copyButtons = document.querySelectorAll('.action-link a');
+    copyButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        if (!button.href.includes('http')) {
+          e.preventDefault();
+          const textToCopy = button.querySelector('span')?.textContent || button.textContent;
+          this.copyToClipboard(textToCopy);
+        }
+      });
+    });
+  }
+
+  setupCatalogSearch() {
+    const searchInput = document.getElementById('catalogSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.filterCatalogItems(e.target.value);
+      });
+    }
+  }
+
+  showDownloadModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+            <div class="modal-content">
+                <h3>Download do Catálogo</h3>
+                <p>O download do catálogo em PDF será iniciado automaticamente.</p>
+                <p>Tamanho do arquivo: 45 MB</p>
+                <div class="modal-actions">
+                    <button class="btn btn-primary download-confirm">Continuar Download</button>
+                    <button class="btn btn-secondary cancel-download">Cancelar</button>
+                </div>
+            </div>
+        `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('.download-confirm').addEventListener('click', () => {
+      this.simulateDownload();
+      modal.remove();
+    });
+
+    modal.querySelector('.cancel-download').addEventListener('click', () => {
+      modal.remove();
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  }
+
+  simulateDownload() {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = 'Download iniciado! O arquivo será salvo em seu dispositivo.';
+    notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 32px;
+            background: ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-surface)' : 'var(--primary)'};
+            color: ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-text-primary)' : 'white'};
+            padding: 16px 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-shadow-lg)' : 'var(--shadow-lg)'};
+            z-index: 2000;
+            animation: slideInRight 0.3s ease-out;
+            border: 1px solid ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-border)' : 'transparent'};
+        `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+
+  copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      this.showNotification('Link copiado para a área de transferência!');
+    }).catch(err => {
+      console.error('Erro ao copiar: ', err);
+      this.showNotification('Erro ao copiar o link.');
+    });
+  }
+
+  filterCatalogItems(searchTerm) {
+    const items = document.querySelectorAll('.format-card, .product-card-large');
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      if (text.includes(searchTerm.toLowerCase())) {
+        item.style.display = 'block';
+        item.style.animation = 'fadeIn 0.3s ease';
+      } else {
+        item.style.display = 'none';
+      }
+    });
+  }
+
+  showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 32px;
+            background: ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-surface)' : 'var(--primary)'};
+            color: ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-text-primary)' : 'white'};
+            padding: 16px 24px;
+            border-radius: var(--radius-lg);
+            box-shadow: ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-shadow-lg)' : 'var(--shadow-lg)'};
+            z-index: 2000;
+            animation: slideInRight 0.3s ease-out;
+            border: 1px solid ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-border)' : 'transparent'};
+        `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.style.animation = 'slideOutRight 0.3s ease-out';
+      setTimeout(() => notification.remove(), 300);
+    }, 3000);
+  }
+}
+
+// ====================
+// FUNCIONALIDADES ESPECÍFICAS DA PÁGINA SOBRE
+// ====================
+
+class AboutFeatures {
+  constructor() {
+    if (document.querySelector('.about-container')) {
+      this.init();
+    }
+  }
+
+  init() {
+    this.setupTimelineAnimation();
+    this.setupTeamCards();
+    this.setupCertificationModal();
+  }
+
+  setupTimelineAnimation() {
+    const timelineItems = document.querySelectorAll('.timeline-item');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateX(0)';
+        }
+      });
+    }, { threshold: 0.5 });
+
+    timelineItems.forEach((item, index) => {
+      item.style.opacity = '0';
+      item.style.transform = 'translateX(-20px)';
+      item.style.transition = `opacity 0.5s ease ${index * 0.2}s, transform 0.5s ease ${index * 0.2}s`;
+      observer.observe(item);
+    });
+  }
+
+  setupTeamCards() {
+    const teamCards = document.querySelectorAll('.team-card');
+    teamCards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-10px) scale(1.05)';
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(0) scale(1)';
+      });
+    });
+  }
+
+  setupCertificationModal() {
+    const certificationItems = document.querySelectorAll('.certification-list li');
+    certificationItems.forEach(item => {
+      item.style.cursor = 'pointer';
+      item.addEventListener('click', () => {
+        this.showCertificationDetails(item.textContent);
+      });
+    });
+  }
+
+  showCertificationDetails(certification) {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+            <div class="modal-content">
+                <h3>${certification}</h3>
+                <p>Esta certificação garante que nossos processos atendem aos mais altos padrões internacionais de qualidade.</p>
+                <p><strong>Validade:</strong> Perpétua (com auditorias anuais)</p>
+                <p><strong>Escopo:</strong> Desenvolvimento e fabricação de sistemas de vedação</p>
+                <button class="btn btn-primary close-modal">Fechar</button>
+            </div>
+        `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('.close-modal').addEventListener('click', () => {
+      modal.remove();
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  }
+}
+
+// ====================
+// INICIALIZAÇÃO COMPLETA
+// ====================
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Inicializar gerenciadores base
+  themeManager = new ThemeManager();
+
+  // Inicializar gerenciadores específicos por página
+  const navigationManager = new NavigationManager();
+
+  // Verificar qual página está ativa e inicializar recursos específicos
+  const currentPage = navigationManager.getCurrentPage();
+
+  if (currentPage === 'index') {
+    productManager = new ProductManager();
+    languageManager = new LanguageManager();
+    searchManager = new SearchManager();
+  } else if (currentPage === 'catalog') {
+    const catalogFeatures = new CatalogFeatures();
+    languageManager = new LanguageManager();
+    searchManager = new SearchManager();
+  } else if (currentPage === 'sobre') {
+    const aboutFeatures = new AboutFeatures();
+    languageManager = new LanguageManager();
+  }
+
+  // Inicializar sistema de busca global
+  if (searchManager && !window.searchManager) {
+    window.searchManager = searchManager;
+  }
+
+  // Log inicial
+  console.log(`Página atual: ${currentPage}`);
+  console.log(`Tema: ${themeManager.getCurrentTheme()}`);
 });
+
+// ====================
+// FUNÇÕES GLOBAIS ADICIONAIS
+// ====================
+
+// Adicionar estilos dinâmicos para novas funcionalidades
+function addAdditionalStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .modal-actions .btn {
+            flex: 1;
+            min-width: 140px;
+        }
+        
+        .team-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Estilos para página específica */
+        .page-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 100;
+        }
+        
+        body.dark-mode .page-indicator {
+            background: var(--dark-primary);
+        }
+    `;
+  document.head.appendChild(style);
+
+  // Adicionar indicador de página (apenas para desenvolvimento)
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    const pageIndicator = document.createElement('div');
+    pageIndicator.className = 'page-indicator';
+    pageIndicator.textContent = navigationManager?.getCurrentPage() || 'Desconhecida';
+    document.body.appendChild(pageIndicator);
+  }
+}
+
+// Chamar função de estilos adicionais
+addAdditionalStyles();
+
+// Adicionar estilos dinâmicos
+function addDynamicStyles() {
+  const style = document.createElement('style');
+  style.textContent = `
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            background: ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-bg-secondary)' : 'white'};
+            padding: 32px;
+            border-radius: var(--radius-xl);
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-xl);
+            animation: slideDown 0.3s ease-out;
+            border: 1px solid ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-border)' : 'var(--border-light)'};
+            color: ${themeManager?.getCurrentTheme() === 'dark' ? 'var(--dark-text-primary)' : 'var(--text-primary)'};
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .search-highlight {
+            background: ${themeManager?.getCurrentTheme() === 'dark' ? 'rgba(255, 204, 0, 0.3)' : 'rgba(255, 204, 0, 0.5)'};
+            padding: 1px 3px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+        
+        /* Efeito de transição suave para todo o site */
+        .theme-transition {
+            transition: all 0.3s ease !important;
+        }
+    `;
+  document.head.appendChild(style);
+}
+
+// Exportar para uso global (se necessário)
+window.ThemeManager = ThemeManager;
+window.themeManager = themeManager;
+window.ProductManager = ProductManager;
+window.productManager = productManager;
