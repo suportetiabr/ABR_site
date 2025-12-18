@@ -333,13 +333,20 @@ class ProductManager {
     // Adicionar estado ativo ao novo card
     card.classList.add('active');
 
-    // Dados do novo produto
-    const newData = {
-      img: card.dataset.img,
-      title: card.dataset.title,
-      description: card.dataset.description,
-      category: card.closest('.catalog-category')?.querySelector('.category-title')?.textContent || 'Produto'
-    };
+    // Buscar idioma atual
+    let lang = 'pt';
+    if (window.languageManager && window.languageManager.currentLanguage) {
+      lang = window.languageManager.currentLanguage;
+    } else if (typeof languageManager !== 'undefined' && languageManager.currentLanguage) {
+      lang = languageManager.currentLanguage;
+    } else {
+      lang = document.documentElement.getAttribute('lang') || 'pt';
+    }
+
+    // Buscar descrição correta do card
+    let description = card.getAttribute('data-i18n-' + lang) || card.dataset.description || '';
+    let title = card.getAttribute('data-title-' + lang) || card.dataset.title || '';
+    let img = card.dataset.img || '';
 
     // Animação de saída
     this.titleEl.classList.add('text-transition-out');
@@ -350,10 +357,10 @@ class ProductManager {
     await new Promise(resolve => setTimeout(resolve, 300));
 
     // Atualizar conteúdo
-    this.productImage.src = newData.img;
-    this.productImage.alt = newData.title;
-    this.titleEl.textContent = newData.title;
-    this.descEl.textContent = newData.description;
+    this.productImage.src = img;
+    this.productImage.alt = title;
+    this.titleEl.textContent = title;
+    this.descEl.textContent = description;
 
     // Animação de entrada
     this.titleEl.classList.remove('text-transition-out');
@@ -403,13 +410,28 @@ class ProductManager {
   }
 
   showQuoteModal() {
+    let lang = 'pt';
+    if (window.languageManager && window.languageManager.currentLanguage) {
+      lang = window.languageManager.currentLanguage;
+    } else if (typeof languageManager !== 'undefined' && languageManager.currentLanguage) {
+      lang = languageManager.currentLanguage;
+    }
+
+    const translations = {
+      pt: { title: 'Solicitar Orçamento', message: 'Formulário de orçamento será aberto em breve.', close: 'Fechar' },
+      en: { title: 'Request Quote', message: 'Quote form will open soon.', close: 'Close' },
+      es: { title: 'Solicitar Presupuesto', message: 'El formulario de presupuesto se abrirá pronto.', close: 'Cerrar' }
+    };
+
+    const t = translations[lang] || translations.pt;
+
     const modal = document.createElement('div');
     modal.className = 'modal-overlay';
     modal.innerHTML = `
       <div class="modal-content">
-        <h3>Solicitar Orçamento</h3>
-        <p>Formulário de orçamento será aberto em breve.</p>
-        <button type="button" class="btn btn-primary close-modal">Fechar</button>
+        <h3>${t.title}</h3>
+        <p>${t.message}</p>
+        <button type="button" class="btn btn-primary close-modal">${t.close}</button>
       </div>
     `;
 
@@ -441,7 +463,21 @@ class ProductManager {
   }
 
   downloadSpecSheet() {
-    this.showNotification('Ficha técnica sendo baixada...');
+    let lang = 'pt';
+    if (window.languageManager && window.languageManager.currentLanguage) {
+      lang = window.languageManager.currentLanguage;
+    } else if (typeof languageManager !== 'undefined' && languageManager.currentLanguage) {
+      lang = languageManager.currentLanguage;
+    }
+
+    const translations = {
+      pt: 'Ficha técnica sendo baixada...',
+      en: 'Technical sheet being downloaded...',
+      es: 'Ficha técnica siendo descargada...'
+    };
+
+    const message = translations[lang] || translations.pt;
+    this.showNotification(message);
   }
 
   setupProductObservers() {
@@ -636,6 +672,9 @@ class LanguageManager {
         } else {
           el.value = translation;
         }
+      } else if (tag === 'p') {
+        // Para parágrafos, usar textContent para preservar apenas o texto
+        el.textContent = translation;
       } else {
         el.innerHTML = translation;
       }
