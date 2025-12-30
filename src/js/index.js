@@ -325,28 +325,16 @@ class ProductManager {
     const imageElement = document.getElementById('productImage');
 
     if (titleElement) {
-      titleElement.textContent = product.titlePt;
-      titleElement.setAttribute('data-i18n', product.title);
-      titleElement.setAttribute('data-i18n-pt', product.titlePt);
-      titleElement.setAttribute('data-i18n-en', product.titleEn);
-      titleElement.setAttribute('data-i18n-es', product.titleEs);
+      titleElement.textContent = product.title;
     }
 
     if (descriptionElement) {
-      descriptionElement.textContent = product.descriptionPt;
-      descriptionElement.setAttribute('data-i18n', product.description);
-      descriptionElement.setAttribute('data-i18n-pt', product.descriptionPt);
-      descriptionElement.setAttribute('data-i18n-en', product.descriptionEn);
-      descriptionElement.setAttribute('data-i18n-es', product.descriptionEs);
+      descriptionElement.textContent = product.description;
     }
 
     if (imageElement) {
       imageElement.src = product.image;
-      imageElement.alt = product.titlePt;
-      imageElement.setAttribute('data-i18n-alt', product.title);
-      imageElement.setAttribute('data-i18n-alt-pt', product.titlePt);
-      imageElement.setAttribute('data-i18n-alt-en', product.titleEn);
-      imageElement.setAttribute('data-i18n-alt-es', product.titleEs);
+      imageElement.alt = product.title;
     }
 
     // Atualizar indicadores
@@ -518,17 +506,51 @@ class NavigationManager {
     // Links de navegação
     this.navLinks.forEach(link => {
       link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        // Somente interceptar hashes locais (começam com '#')
+        if (!href || href.charAt(0) !== '#') return;
+
         e.preventDefault();
-        const targetId = link.getAttribute('href').substring(1);
-        this.scrollToSection(targetId);
+        const targetId = href.substring(1);
+        if (!targetId) return;
+
+        // Navegar para a seção e atualizar hash/history
+        this.scrollToSection(targetId, true);
+
+        // Fechar menu mobile após navegação
+        const nav = document.querySelector('.menu');
+        const menuToggle = document.getElementById('menuToggle');
+        if (nav && menuToggle && nav.classList.contains('active')) {
+          nav.classList.remove('active');
+          menuToggle.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', 'false');
+
+          // Disparar evento para notificar que o menu foi fechado
+          document.dispatchEvent(new CustomEvent('menuchange', { detail: { open: false } }));
+        }
+
+        // Atualizar link ativo imediatamente para feedback
+        this.updateActiveNavLink(targetId);
       });
     });
 
-    // Botão de menu mobile
-    const menuToggle = document.getElementById('menuToggle');
-    if (menuToggle) {
-      menuToggle.addEventListener('click', () => this.toggleMobileMenu());
+    // Clique no logo leva para 'home'
+    const logo = document.querySelector('.logo-container');
+    if (logo) {
+      logo.style.cursor = 'pointer';
+      logo.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.scrollToSection('home', true);
+      });
     }
+
+    // Menu mobile: o clique é gerenciado pela classe MenuToggle para evitar handlers duplicados
+
+    // Responder ao histórico (back/forward)
+    window.addEventListener('popstate', () => {
+      const hash = window.location.hash ? window.location.hash.substring(1) : '';
+      if (hash) this.scrollToSection(hash, false);
+    });
   }
 
   setupScrollSpy() {
@@ -561,26 +583,52 @@ class NavigationManager {
     this.currentSection = sectionId;
   }
 
-  scrollToSection(sectionId) {
+  scrollToSection(sectionId, pushHistory = false) {
     const section = document.getElementById(sectionId);
     if (section) {
-      const headerHeight = document.querySelector('.header').offsetHeight;
-      const offsetTop = section.offsetTop - headerHeight;
+      // Get header height dynamically
+      const headerEl = document.querySelector('.header');
+      const headerHeight = headerEl ? headerEl.getBoundingClientRect().height : 0;
 
-      window.scrollTo({
-        top: offsetTop,
-        behavior: 'smooth'
-      });
+      // Calculate target using bounding rect to be robust against nested sections and margins
+      const rect = section.getBoundingClientRect();
+      const target = Math.max(0, window.scrollY + rect.top - headerHeight - 8);
+
+      // Smooth scroll
+      window.scrollTo({ top: target, behavior: 'smooth' });
+
+      // Set focus for accessibility after a short delay
+      setTimeout(() => {
+        section.setAttribute('tabindex', '-1');
+        section.focus({ preventScroll: true });
+      }, 250);
+
+      // Atualizar o hash na URL para permitir histórico e compartilhamento
+      if (pushHistory) {
+        try {
+          history.pushState(null, '', `#${sectionId}`);
+        } catch (err) {
+          // fallback
+          window.location.hash = `#${sectionId}`;
+        }
+      }
+
+      // Atualizar o estado do link ativo (imediato)
+      this.updateActiveNavLink(sectionId);
     }
   }
 
   toggleMobileMenu() {
-    const nav = document.querySelector('.nav');
+    const nav = document.querySelector('.menu');
     const menuToggle = document.getElementById('menuToggle');
 
     if (nav && menuToggle) {
-      nav.classList.toggle('mobile-open');
+      nav.classList.toggle('active');
       menuToggle.classList.toggle('active');
+
+      // Atualizar aria-expanded corretamente como string
+      const isOpen = nav.classList.contains('active');
+      menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     }
   }
 
@@ -726,7 +774,7 @@ class AboutFeatures {
 class MenuToggle {
   constructor() {
     this.menuToggle = document.getElementById('menuToggle');
-    this.nav = document.querySelector('.nav');
+    this.nav = document.querySelector('.menu');
     this.init();
   }
 
@@ -743,24 +791,30 @@ class MenuToggle {
   }
 
   toggleMenu() {
-    this.nav.classList.toggle('mobile-open');
+    this.nav.classList.toggle('active');
     this.menuToggle.classList.toggle('active');
 
-    // Atualizar aria-expanded
-    const isOpen = this.nav.classList.contains('mobile-open');
-    this.menuToggle.setAttribute('aria-expanded', isOpen);
+    // Atualizar aria-expanded (string)
+    const isOpen = this.nav.classList.contains('active');
+    this.menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+    // Notificar outras partes do sistema (ex.: header) que o menu mudou
+    document.dispatchEvent(new CustomEvent('menuchange', { detail: { open: isOpen } }));
   }
 
   closeMenuOnOutsideClick(e) {
-    if (!this.menuToggle.contains(e.target) && !this.nav.contains(e.target)) {
+    if (!this.menuToggle.contains(e.target) && (!this.nav || !this.nav.contains(e.target))) {
       this.closeMenu();
     }
   }
 
   closeMenu() {
-    this.nav.classList.remove('mobile-open');
+    this.nav.classList.remove('active');
     this.menuToggle.classList.remove('active');
     this.menuToggle.setAttribute('aria-expanded', 'false');
+
+    // Disparar evento para notificar fechamento
+    document.dispatchEvent(new CustomEvent('menuchange', { detail: { open: false } }));
   }
 
   handleResize() {
@@ -774,186 +828,68 @@ class MenuToggle {
 // SISTEMA DE IDIOMA
 // ====================
 
-class LanguageManager {
+class ScrollManager {
   constructor() {
-    this.currentLang = localStorage.getItem('language') || 'pt';
-    this.translations = {};
+    this.header = document.querySelector('.header');
+    this.backToTop = document.getElementById('backToTop');
+    this.lastScroll = window.scrollY || 0;
+    this.ticking = false;
     this.init();
   }
 
   init() {
-    this.loadTranslations();
-    this.setupEventListeners();
-    this.applyLanguage();
-  }
-
-  loadTranslations() {
-    // Carregar traduções dos elementos data-i18n
-    this.translations = {
-      pt: {},
-      en: {},
-      es: {}
-    };
-  }
-
-  setupEventListeners() {
-    // Toggle do dropdown de idioma
-    const flagToggle = document.getElementById('flagToggle');
-    const flagMenu = document.getElementById('flagMenu');
-
-    if (flagToggle && flagMenu) {
-      flagToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.toggleDropdown();
-      });
-
-      // Fechar dropdown ao clicar fora
-      document.addEventListener('click', (e) => {
-        if (!flagToggle.contains(e.target) && !flagMenu.contains(e.target)) {
-          this.closeDropdown();
-        }
-      });
-
-      // Opções de idioma
-      const flagOptions = flagMenu.querySelectorAll('.flag-option');
-      flagOptions.forEach(option => {
-        option.addEventListener('click', (e) => {
-          const lang = e.currentTarget.getAttribute('data-lang');
-          this.changeLanguage(lang);
-          this.closeDropdown();
-        });
-      });
+    // Criar botão se não existir
+    if (!this.backToTop) {
+      const btn = document.createElement('button');
+      btn.id = 'backToTop';
+      btn.className = 'back-to-top';
+      btn.setAttribute('aria-label', 'Voltar ao topo');
+      btn.setAttribute('aria-hidden', 'true');
+      btn.innerHTML = '<i class="fa-solid fa-chevron-up" aria-hidden="true"></i>';
+      document.body.appendChild(btn);
+      this.backToTop = btn;
     }
+
+    this.backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.addEventListener('scroll', () => this.onScroll(), { passive: true });
+    window.addEventListener('resize', () => this.onScroll());
+
+    this.onScroll();
   }
 
-  toggleDropdown() {
-    const flagMenu = document.getElementById('flagMenu');
-    const flagToggle = document.getElementById('flagToggle');
+  onScroll() {
+    if (this.ticking) return;
+    this.ticking = true;
+    requestAnimationFrame(() => {
+      const current = window.scrollY || 0;
 
-    if (flagMenu && flagToggle) {
-      const isOpen = flagMenu.classList.contains('show');
-      if (isOpen) {
-        this.closeDropdown();
-      } else {
-        this.openDropdown();
-      }
-    }
-  }
-
-  openDropdown() {
-    const flagMenu = document.getElementById('flagMenu');
-    const flagToggle = document.getElementById('flagToggle');
-
-    if (flagMenu && flagToggle) {
-      flagMenu.classList.remove('hidden');
-      flagMenu.classList.add('show');
-      flagToggle.setAttribute('aria-expanded', 'true');
-      flagMenu.setAttribute('aria-hidden', 'false');
-    }
-  }
-
-  closeDropdown() {
-    const flagMenu = document.getElementById('flagMenu');
-    const flagToggle = document.getElementById('flagToggle');
-
-    if (flagMenu && flagToggle) {
-      flagMenu.classList.remove('show');
-      flagMenu.classList.add('hidden');
-      flagToggle.setAttribute('aria-expanded', 'false');
-      flagMenu.setAttribute('aria-hidden', 'true');
-    }
-  }
-
-  changeLanguage(lang) {
-    this.currentLang = lang;
-    localStorage.setItem('language', lang);
-    this.applyLanguage();
-    this.updateFlagIcon();
-  }
-
-  updateFlagIcon() {
-    const flagToggle = document.getElementById('flagToggle');
-    if (flagToggle) {
-      const flagIcon = flagToggle.querySelector('.flag-icon');
-      if (flagIcon) {
-        // Remover todas as classes de bandeira
-        flagIcon.className = 'flag-icon';
-
-        // Adicionar a bandeira correta
-        switch (this.currentLang) {
-          case 'pt':
-            flagIcon.classList.add('flag-icon-br');
-            break;
-          case 'en':
-            flagIcon.classList.add('flag-icon-us');
-            break;
-          case 'es':
-            flagIcon.classList.add('flag-icon-es');
-            break;
-        }
-      }
-    }
-  }
-
-  applyLanguage() {
-    const elements = document.querySelectorAll('[data-i18n]');
-
-    elements.forEach(element => {
-      const key = element.getAttribute('data-i18n');
-      if (key) {
-        const translation = element.getAttribute(`data-i18n-${this.currentLang}`);
-        if (translation) {
-          // Para elementos de texto simples
-          if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
-            element.placeholder = translation;
-          } else if (element.tagName === 'IMG') {
-            element.alt = translation;
-          } else {
-            element.textContent = translation;
-          }
+      // Esconder header ao rolar para baixo, mostrar ao subir
+      if (this.header) {
+        const nav = document.querySelector('.menu');
+        // se o menu mobile estiver aberto, manter o header visível
+        if (nav && nav.classList.contains('active')) {
+          this.header.classList.remove('hidden');
+        } else if (current > this.lastScroll && current > 100) {
+          this.header.classList.add('hidden');
+        } else {
+          this.header.classList.remove('hidden');
         }
       }
 
-      // Traduzir atributos especiais
-      this.translateAttributes(element);
+      // Mostrar botão voltar ao topo quando passar de 400px
+      if (this.backToTop) {
+        if (current > 400) {
+          this.backToTop.classList.add('visible');
+          this.backToTop.setAttribute('aria-hidden', 'false');
+        } else {
+          this.backToTop.classList.remove('visible');
+          this.backToTop.setAttribute('aria-hidden', 'true');
+        }
+      }
+
+      this.lastScroll = current;
+      this.ticking = false;
     });
-
-    // Atualizar título da página
-    this.updatePageTitle();
-
-    // Disparar evento de mudança de idioma
-    document.dispatchEvent(new CustomEvent('languagechange', {
-      detail: { language: this.currentLang }
-    }));
-  }
-
-  translateAttributes(element) {
-    // Traduzir aria-label
-    const ariaLabel = element.getAttribute(`data-i18n-aria-label-${this.currentLang}`);
-    if (ariaLabel) {
-      element.setAttribute('aria-label', ariaLabel);
-    }
-
-    // Traduzir title
-    const title = element.getAttribute(`data-i18n-title-${this.currentLang}`);
-    if (title) {
-      element.setAttribute('title', title);
-    }
-
-    // Traduzir alt de imagens
-    const alt = element.getAttribute(`data-i18n-alt-${this.currentLang}`);
-    if (alt) {
-      element.setAttribute('alt', alt);
-    }
-  }
-
-  updatePageTitle() {
-    const titleElement = document.querySelector('title');
-    if (titleElement) {
-      const title = titleElement.getAttribute(`data-i18n-${this.currentLang}`) ||
-        'ABR Indústria e Comércio de Auto Peças';
-      document.title = title;
-    }
   }
 }
 
@@ -967,66 +903,30 @@ class ProductCarousel {
       {
         id: 'oring',
         title: 'Anéis O\'Ring',
-        titlePt: 'Anéis O\'Ring',
-        titleEn: 'O-Ring Seals',
-        titleEs: 'Anillos O-Ring',
         description: 'Vedação circular em elastômero para aplicações diversas em sistemas hidráulicos e pneumáticos.',
-        descriptionPt: 'Vedação circular em elastômero para aplicações diversas em sistemas hidráulicos e pneumáticos.',
-        descriptionEn: 'Circular seal made of elastomer for various applications in hydraulic and pneumatic systems.',
-        descriptionEs: 'Sello circular fabricado en elastómero para diversas aplicaciones en sistemas hidráulicos y neumáticos.',
         image: 'assets/ANEL_ORING.webp',
-        category: 'Vedadores Especiais',
-        categoryPt: 'Vedadores Especiais',
-        categoryEn: 'Special Seals',
-        categoryEs: 'Sellos Especiales'
+        category: 'Vedadores Especiais'
       },
       {
         id: 'd229',
         title: 'Junta do Cabeçote D229',
-        titlePt: 'Junta do Cabeçote D229',
-        titleEn: 'Cylinder Head Gasket D229',
-        titleEs: 'Empaque de Culata D229',
         description: 'Junta de cabeçote para motor D229, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        descriptionPt: 'Junta de cabeçote para motor D229, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        descriptionEn: 'Cylinder head gasket for D229 engine, constructed of multi-layered steel, designed to seal combustion chambers, oil ducts and cooling channels between block and cylinder head, withstanding high temperatures and working pressure.',
-        descriptionEs: 'Empaque de culata para motor D229, construido en acero multicapa, diseñado para sellar cámaras de combustión, conductos de aceite y canales de enfriamiento entre bloque y culata, soportando altas temperaturas y presión de trabajo.',
         image: 'assets/D229.webp',
-        category: 'Junta do Cabeçote',
-        categoryPt: 'Junta do Cabeçote',
-        categoryEn: 'Cylinder Head Gasket',
-        categoryEs: 'Empaque de Culata'
+        category: 'Junta do Cabeçote'
       },
       {
         id: 'x10',
         title: 'Junta do Cabeçote X10',
-        titlePt: 'Junta do Cabeçote X10',
-        titleEn: 'Cylinder Head Gasket X10',
-        titleEs: 'Empaque de Culata X10',
         description: 'Junta de cabeçote para motor X10, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        descriptionPt: 'Junta de cabeçote para motor X10, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        descriptionEn: 'Cylinder head gasket for X10 engine, constructed of multi-layered steel, designed to seal combustion chambers, oil ducts and cooling channels between block and cylinder head, withstanding high temperatures and working pressure.',
-        descriptionEs: 'Empaque de culata para motor X10, construido en acero multicapa, diseñado para sellar cámaras de combustión, conductos de aceite y canales de enfriamiento entre bloque y culata, soportando altas temperaturas y presión de trabalho.',
         image: 'assets/x10.webp',
-        category: 'Junta do Cabeçote',
-        categoryPt: 'Junta do Cabeçote',
-        categoryEn: 'Cylinder Head Gasket',
-        categoryEs: 'Empaque de Culata'
+        category: 'Junta do Cabeçote'
       },
       {
         id: 'x12',
         title: 'Vedador X12',
-        titlePt: 'Vedador X12',
-        titleEn: 'Seal X12',
-        titleEs: 'Sello X12',
         description: 'Vedador do conjunto X12 em elastômero, destinado à vedação de óleo/fluido em eixo ou alojamento, resistente a variações térmicas e à ação de derivados de petróleo, evitando vazamentos e contaminação do sistema.',
-        descriptionPt: 'Vedador do conjunto X12 em elastômero, destinado à vedação de óleo/fluido em eixo ou alojamento, resistente a variações térmicas e à ação de derivados de petróleo, evitando vazamentos e contaminação do sistema.',
-        descriptionEn: 'X12 assembly seal made of elastomer, designed for sealing oil or fluid in shafts or housings. Resistant to thermal variations and petroleum derivatives, preventing leaks and system contamination.',
-        descriptionEs: 'Sello del conjunto X12 fabricado en elastómero, destinado a la estanqueidad de aceite o fluido en ejes o alojamientos. Resistente a variaciones térmicas y a derivados del petróleo, evitando fugas y contaminación del sistema.',
         image: 'assets/VEDADOR_X12.webp',
-        category: 'Vedadores Especiais',
-        categoryPt: 'Vedadores Especiais',
-        categoryEn: 'Special Seals',
-        categoryEs: 'Sellos Especiales'
+        category: 'Vedadores Especiais'
       }
     ];
 
@@ -1066,10 +966,6 @@ class ProductCarousel {
 
     if (titleElement) {
       titleElement.textContent = 'ABR Ind. e Com. de Auto Peças';
-      titleElement.removeAttribute('data-i18n');
-      titleElement.removeAttribute('data-i18n-pt');
-      titleElement.removeAttribute('data-i18n-en');
-      titleElement.removeAttribute('data-i18n-es');
     }
 
     if (descriptionElement) {
@@ -1077,20 +973,12 @@ class ProductCarousel {
 Desenvolvemos juntas de cabeçote, anéis O'ring e vedadores especiais para motores.
 Nossos produtos garantem durabilidade, segurança e eficiência em todas as aplicações.
 Atendemos montadoras, reposição e lojas de autopeças.`;
-      descriptionElement.removeAttribute('data-i18n');
-      descriptionElement.removeAttribute('data-i18n-pt');
-      descriptionElement.removeAttribute('data-i18n-en');
-      descriptionElement.removeAttribute('data-i18n-es');
     }
 
     if (imageElement) {
       imageElement.src = 'assets/logo_apresentacao.webp';
       imageElement.alt = 'ABR';
       imageElement.classList.add('abr-logo');
-      imageElement.removeAttribute('data-i18n-alt');
-      imageElement.removeAttribute('data-i18n-alt-pt');
-      imageElement.removeAttribute('data-i18n-alt-en');
-      imageElement.removeAttribute('data-i18n-alt-es');
     }
 
     setTimeout(() => {
@@ -1129,29 +1017,17 @@ Atendemos montadoras, reposição e lojas de autopeças.`;
     // Aguardar o fade-out completar antes de atualizar o conteúdo
     setTimeout(() => {
       if (titleElement) {
-        titleElement.textContent = product.titlePt;
-        titleElement.setAttribute('data-i18n', product.title);
-        titleElement.setAttribute('data-i18n-pt', product.titlePt);
-        titleElement.setAttribute('data-i18n-en', product.titleEn);
-        titleElement.setAttribute('data-i18n-es', product.titleEs);
+        titleElement.textContent = product.title;
       }
 
       if (descriptionElement) {
-        descriptionElement.textContent = product.descriptionPt;
-        descriptionElement.setAttribute('data-i18n', product.description);
-        descriptionElement.setAttribute('data-i18n-pt', product.descriptionPt);
-        descriptionElement.setAttribute('data-i18n-en', product.descriptionEn);
-        descriptionElement.setAttribute('data-i18n-es', product.descriptionEs);
+        descriptionElement.textContent = product.description;
       }
 
       if (imageElement) {
         imageElement.src = product.image;
-        imageElement.alt = product.titlePt;
+        imageElement.alt = product.title;
         imageElement.classList.remove('abr-logo');
-        imageElement.setAttribute('data-i18n-alt', product.title);
-        imageElement.setAttribute('data-i18n-alt-pt', product.titlePt);
-        imageElement.setAttribute('data-i18n-alt-en', product.titleEn);
-        imageElement.setAttribute('data-i18n-alt-es', product.titleEs);
       }
 
       // Remover fade-out e aplicar fade-in
@@ -1229,12 +1105,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Inicializar gerenciadores
   window.themeManager = new ThemeManager();
   window.productManager = new ProductManager();
-  window.languageManager = new LanguageManager();
   window.searchManager = new SearchManager();
   window.navigationManager = new NavigationManager();
   window.catalogFeatures = new CatalogFeatures();
   window.aboutFeatures = new AboutFeatures();
   window.menuToggle = new MenuToggle();
+  window.scrollManager = new ScrollManager();
   window.productCarousel = new ProductCarousel();
 });
 
@@ -1244,7 +1120,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.ThemeManager = ThemeManager;
 window.ProductManager = ProductManager;
-window.LanguageManager = LanguageManager;
 window.SearchManager = SearchManager;
 window.NavigationManager = NavigationManager;
 window.CatalogFeatures = CatalogFeatures;

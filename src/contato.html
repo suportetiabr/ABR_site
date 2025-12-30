@@ -55,13 +55,10 @@
     <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous">
 
-    <link rel="preload" as="style"
-        href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css"
-        onload="this.onload=null;this.rel='stylesheet'" crossorigin="anonymous">
+
 
     <noscript>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
     </noscript>
 
 
@@ -74,8 +71,8 @@
         <div class="header-inner">
             <div class="logo-container">
                 <img src="assets/logo.webp" class="logo" alt="Logo da Empresa" />
-                <span class="logo-text" data-i18n data-i18n-pt="Fale conosco" data-i18n-en="Contact us"
-                    data-i18n-es="Contáctenos">
+                <span class="logo-text"
+                   >
                     Fale conosco
                 </span>
             </div>
@@ -86,66 +83,37 @@
                 <span></span>
             </button>
 
-            <nav class="menu" id="navMenu" aria-label="Navegação principal" data-i18n-aria-label
-                data-i18n-aria-label-pt="Navegação principal" data-i18n-aria-label-en="Main navigation"
-                data-i18n-aria-label-es="Navegación principal">
-                <a href="sobre.html" class="nav-link" data-i18n data-i18n-pt="Sobre" data-i18n-en="About"
-                    data-i18n-es="Nosotros">
+            <nav class="menu" id="navMenu" aria-label="Navegação principal"
+               
+               >
+                <a href="sobre.html" class="nav-link">
                     Sobre
                 </a>
-                <a href="index.html" class="nav-link" data-i18n data-i18n-pt="Produtos" data-i18n-en="Products"
-                    data-i18n-es="Productos">
+                <a href="index.html" class="nav-link">
                     Produtos
                 </a>
-                <a href="catalog.html" class="nav-link" data-i18n data-i18n-pt="Catálogo" data-i18n-en="Catalog"
-                    data-i18n-es="Catálogo">
+                <a href="catalog.html" class="nav-link">
                     Catálogo
                 </a>
-                <a href="imprensa.html" class="nav-link" data-i18n data-i18n-pt="Imprensa" data-i18n-en="News"
-                    data-i18n-es="Prensa">
+                <a href="imprensa.html" class="nav-link">
                     Imprensa
                 </a>
-                <a href="contato.html" class="nav-link active" data-i18n data-i18n-pt="Contato" data-i18n-en="Contact"
-                    data-i18n-es="Contacto">
+                <a href="contato.html" class="nav-link active">
                     Contato
                 </a>
             </nav>
 
-            <div class="controls" role="group" aria-label="Controles do sistema" data-i18n-aria-label
-                data-i18n-aria-label-pt="Controles do sistema" data-i18n-aria-label-en="System controls"
-                data-i18n-aria-label-es="Controles del sistema">
+            <div class="controls" role="group" aria-label="Controles do sistema">
                 <div class="controls-group">
-                    <div class="flags-container">
-                        <button id="flagToggle" class="flag-btn" aria-haspopup="true" aria-expanded="false"
-                            title="Selecionar idioma" data-i18n-title data-i18n-title-pt="Selecionar idioma"
-                            data-i18n-title-en="Select language" data-i18n-title-es="Seleccionar idioma">
-                            <span class="flag-icon flag-icon-br" aria-hidden="true"></span>
-                            <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
-                        </button>
 
-                        <div id="flagMenu" class="flag-dropdown hidden" role="menu" aria-hidden="true">
-                            <button class="flag-option" data-lang="pt" aria-label="Português">
-                                <span class="flag-icon flag-icon-br" aria-hidden="true"></span>
-                                Português
-                            </button>
-                            <button class="flag-option" data-lang="en" aria-label="English">
-                                <span class="flag-icon flag-icon-us" aria-hidden="true"></span>
-                                English
-                            </button>
-                            <button class="flag-option" data-lang="es" aria-label="Español">
-                                <span class="flag-icon flag-icon-es" aria-hidden="true"></span>
-                                Español
-                            </button>
-                        </div>
-                    </div>
 
                     <button id="darkModeToggle" class="icon-btn" aria-pressed="false" title="Alternar modo escuro/claro"
-                        data-i18n-title data-i18n-title-pt="Alternar modo escuro/claro"
-                        data-i18n-title-en="Toggle dark/light mode" data-i18n-title-es="Alternar modo oscuro/claro"
-                        aria-label="Alternar modo escuro/claro" data-i18n-aria-label
-                        data-i18n-aria-label-pt="Alternar modo escuro/claro"
-                        data-i18n-aria-label-en="Toggle dark/light mode"
-                        data-i18n-aria-label-es="Alternar modo oscuro/claro">
+                       
+                       
+                        aria-label="Alternar modo escuro/claro"
+                       
+                       
+                       >
                         <i class="fa-solid fa-moon"></i>
                     </button>
                 </div>
@@ -155,24 +123,24 @@
 
     <main class="main" role="main">
         <section class="contact-hero" aria-labelledby="contact-title">
-            <h1 id="contact-title" class="page-title" data-i18n data-i18n-pt="Contato" data-i18n-en="Contact"
-                data-i18n-es="Contacto">
+            <h1 id="contact-title" class="page-title"
+               >
                 Contato
             </h1>
             <div class="title-underline"></div>
-            <p class="subtitle" data-i18n data-i18n-pt="Fale conosco — responderemos em até 2 dias úteis"
-                data-i18n-en="Talk to us — we'll respond within 2 business days"
-                data-i18n-es="Hable con nosotros — responderemos en hasta 2 días hábiles">
+            <p class="subtitle"
+               
+               >
                 Fale conosco — responderemos em até 2 dias úteis
             </p>
         </section>
 
-        <div class="contact-container" role="region" aria-label="Formulário de contato" data-i18n-aria-label
-            data-i18n-aria-label-pt="Formulário de contato" data-i18n-aria-label-en="Contact form"
-            data-i18n-aria-label-es="Formulario de contacto">
+        <div class="contact-container" role="region" aria-label="Formulário de contato"
+           
+           >
             <div class="contact-card" aria-labelledby="form-title">
-                <h2 id="form-title" style="margin:0 0 10px; font-size:20px; color:var(--title);" data-i18n
-                    data-i18n-pt="Envie sua mensagem" data-i18n-en="Send your message" data-i18n-es="Envíe su mensaje">
+                <h2 id="form-title" style="margin:0 0 10px; font-size:20px; color:var(--title);"
+                   >
                     Envie sua mensagem
                 </h2>
 
@@ -182,52 +150,52 @@
                     <input type="hidden" name="_captcha" value="false">
                     <input type="hidden" name="_template" value="table">
                     <input type="hidden" name="_subject" value="Contato do site ABR">
-                    <label for="nome" class="visually-hidden" data-i18n data-i18n-pt="Nome" data-i18n-en="Name"
-                        data-i18n-es="Nombre">
+                    <label for="nome" class="visually-hidden"
+                       >
                         Nome
                     </label>
                     <div class="row" style="margin-bottom:12px">
                         <div class="field">
-                            <label for="nome" data-i18n data-i18n-pt="Nome" data-i18n-en="Name" data-i18n-es="Nombre">
+                            <label for="nome">
                                 Nome
                             </label>
                             <input id="nome" name="name" type="text" placeholder="Seu nome completo" required
-                                maxlength="80" data-i18n-placeholder data-i18n-placeholder-pt="Seu nome completo"
-                                data-i18n-placeholder-en="Your full name"
-                                data-i18n-placeholder-es="Su nombre completo" />
+                                maxlength="80"
+                               
+                                />
                         </div>
 
                         <div class="field">
-                            <label for="email" data-i18n data-i18n-pt="Email" data-i18n-en="Email" data-i18n-es="Email">
+                            <label for="email">
                                 Email
                             </label>
                             <input id="email" name="email" type="email" placeholder="seuemail@exemplo.com" required
-                                maxlength="120" data-i18n-placeholder data-i18n-placeholder-pt="seu@exemplo.com"
-                                data-i18n-placeholder-en="your@example.com" data-i18n-placeholder-es="su@ejemplo.com" />
+                                maxlength="120"
+                                />
                         </div>
                     </div>
 
                     <div class="field">
-                        <label for="assunto" data-i18n data-i18n-pt="Assunto" data-i18n-en="Subject"
-                            data-i18n-es="Asunto">
+                        <label for="assunto"
+                           >
                             Assunto
                         </label>
                         <input id="assunto" name="_subject" type="text" placeholder="Motivo do contato" required
-                            maxlength="120" data-i18n-placeholder data-i18n-placeholder-pt="Motivo do contato"
-                            data-i18n-placeholder-en="Reason for contact"
-                            data-i18n-placeholder-es="Motivo del contacto" />
+                            maxlength="120"
+                           
+                            />
                     </div>
 
                     <div class="field">
-                        <label for="mensagem" data-i18n data-i18n-pt="Mensagem" data-i18n-en="Message"
-                            data-i18n-es="Mensaje">
+                        <label for="mensagem"
+                           >
                             Mensagem
                         </label>
                         <textarea id="mensagem" name="message" placeholder="Digite sua mensagem aqui..." required
-                            maxlength="3000" data-i18n-placeholder
-                            data-i18n-placeholder-pt="Digite sua mensagem aqui..."
-                            data-i18n-placeholder-en="Type your message here..."
-                            data-i18n-placeholder-es="Escriba su mensaje aquí..."></textarea>
+                            maxlength="3000"
+                           
+                           
+                           ></textarea>
                         <div class="helper-text" id="charCount">0 / 3000</div>
                     </div>
 
@@ -237,12 +205,12 @@
                     </div>
 
                     <div style="display:flex; gap:12px; align-items:center; margin-top:8px">
-                        <button id="submitBtn" class="btn" type="submit" data-i18n data-i18n-pt="Enviar mensagem"
-                            data-i18n-en="Send message" data-i18n-es="Enviar mensaje">
+                        <button id="submitBtn" class="btn" type="submit"
+                           >
                             Enviar mensagem
                         </button>
-                        <div id="sending" class="helper-text" style="display:none" data-i18n data-i18n-pt="Enviando..."
-                            data-i18n-en="Sending..." data-i18n-es="Enviando...">
+                        <div id="sending" class="helper-text" style="display:none"
+                           >
                             Enviando...
                         </div>
                     </div>
@@ -253,14 +221,14 @@
             </div>
 
             <aside class="contact-info" aria-labelledby="info-title">
-                <h4 id="info-title" data-i18n data-i18n-pt="Nossos contatos" data-i18n-en="Our contacts"
-                    data-i18n-es="Nuestros contactos">
+                <h4 id="info-title"
+                   >
                     Nossos contatos
                 </h4>
-                <p data-i18n
-                    data-i18n-pt="Atendimento comercial e imprensa. Para suporte técnico use o canal de Assistência Técnica no rodapé."
-                    data-i18n-en="Commercial and News service. For technical support, use the Technical Assistance channel in the footer."
-                    data-i18n-es="Atención comercial y de prensa. Para soporte técnico use el canal de Asistencia Técnica en el pie de página.">
+                <p
+                   
+                   
+                   >
                     Atendimento comercial e imprensa. Para suporte técnico use o canal de Assistência Técnica no rodapé.
                 </p>
 
@@ -270,16 +238,16 @@
 
                 <hr style="border:none; border-top:1px solid #eef2f6; margin:14px 0">
 
-                <h4 style="margin:0 0 8px; color:var(--title)" data-i18n data-i18n-pt="Horário de atendimento"
-                    data-i18n-en="Service hours" data-i18n-es="Horario de atención">
+                <h4 style="margin:0 0 8px; color:var(--title)"
+                   >
                     Horário de atendimento
                 </h4>
                 <p>Seg–Sex: 07h - 16:45</p>
 
-                <div style="margin-top:10px" class="helper-text" data-i18n
-                    data-i18n-pt="Ou envie sua mensagem pelo formulário — responderemos em até 2 dias úteis."
-                    data-i18n-en="Or send your message through the form — we will reply within 2 business days."
-                    data-i18n-es="O envíe su mensaje por el formulario — responderemos en hasta 2 días hábiles.">
+                <div style="margin-top:10px" class="helper-text"
+                   
+                   
+                   >
                     Ou envie sua mensagem pelo formulário — responderemos em até 2 dias úteis.
                 </div>
             </aside>
@@ -289,59 +257,59 @@
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-section">
-                <h3 data-i18n data-i18n-pt="Sobre" data-i18n-en="About" data-i18n-es="Nosotros">
+                <h3>
                     Sobre
                 </h3>
                 <ul>
-                    <li><a href="sobre.html#nossa-historia" data-i18n data-i18n-pt="Nossa História"
-                            data-i18n-en="Our History" data-i18n-es="Nuestra historia">
+                    <li><a href="sobre.html#nossa-historia"
+                           >
                             Nossa História
                         </a></li>
-                    <li><a href="sobre.html#estrutura" data-i18n data-i18n-pt="Estrutura" data-i18n-en="Structure"
-                            data-i18n-es="Estructura">
+                    <li><a href="sobre.html#estrutura"
+                           >
                             Estrutura
                         </a></li>
-                    <li><a href="sobre.html#qualidade" data-i18n data-i18n-pt="Qualidade" data-i18n-en="Quality"
-                            data-i18n-es="Calidad">
+                    <li><a href="sobre.html#qualidade"
+                           >
                             Qualidade
                         </a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h3 data-i18n data-i18n-pt="Produtos" data-i18n-en="Products" data-i18n-es="Productos">
+                <h3>
                     Produtos
                 </h3>
                 <ul>
-                    <li><a href="catalog.html" data-i18n data-i18n-pt="Catálogo" data-i18n-en="Catalog"
-                            data-i18n-es="Catálogo">
+                    <li><a href="catalog.html"
+                           >
                             Catálogo
                         </a></li>
-                    <li><a href="catalog.html" data-i18n data-i18n-pt="Downloads" data-i18n-en="Downloads"
-                            data-i18n-es="Descargas">
+                    <li><a href="catalog.html"
+                           >
                             Downloads
                         </a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h3 data-i18n data-i18n-pt="Suporte" data-i18n-en="Support" data-i18n-es="Soporte">
+                <h3>
                     Suporte
                 </h3>
                 <ul>
-                    <li><a href="contato.html" data-i18n data-i18n-pt="Contato" data-i18n-en="Contact"
-                            data-i18n-es="Contacto">
+                    <li><a href="contato.html"
+                           >
                             Contato
                         </a></li>
                 </ul>
             </div>
             <div class="footer-section">
-                <h3 data-i18n data-i18n-pt="Contato" data-i18n-en="Contact" data-i18n-es="Contacto">
+                <h3>
                     Contato
                 </h3>
                 <ul>
                     <li><a href="tel:+551931160145" title="Telefone">
                             <i class="fas fa-phone"></i>
-                            <span data-i18n data-i18n-pt="+55 (19) 3116 0145" data-i18n-en="+55 (19) 3116 0145"
-                                data-i18n-es="+55 (19) 3116 0145">
+                            <span
+                               >
                                 +55 (19) 3116 0145
                             </span>
                         </a></li>
@@ -351,14 +319,14 @@
                         </a></li>
                     <li><a href="#" title="Endereço">
                             <i class="fas fa-map-marker-alt"></i>
-                            <span data-i18n data-i18n-pt="Hortolândia, SP" data-i18n-en="Hortolândia, SP"
-                                data-i18n-es="Hortolândia, SP">
+                            <span
+                               >
                                 Hortolândia, SP
                             </span>
                         </a></li>
                     <li style="margin-top: 8px; font-size: 12px; color: #999;">
-                        <span data-i18n data-i18n-pt="Seg–Sex: 07h - 16:45" data-i18n-en="Mon–Fri: 7am - 16:45pm"
-                            data-i18n-es="Lun–Vie: 07h – 16:45">
+                        <span
+                           >
                             Seg–Sex: 07h - 16:45
                         </span>
                     </li>
@@ -366,9 +334,9 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p data-i18n data-i18n-pt="© 2025 ABR. Todos os direitos reservados."
-                data-i18n-en="© 2025 ABR. All rights reserved."
-                data-i18n-es="© 2025 ABR. Todos los derechos reservados.">
+            <p
+               
+               >
                 &copy; 2025 ABR. Todos os direitos reservados.
             </p>
         </div>

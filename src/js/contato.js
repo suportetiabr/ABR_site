@@ -7,9 +7,7 @@
     // elements
     const body = document.documentElement;
     const darkBtn = $('#darkModeToggle');
-    const flagToggle = $('#flagToggle');
-    const flagMenu = $('#flagMenu');
-    const flagOptions = $$('.flag-option');
+
     const searchToggle = $('#searchToggle');
 
     // ---------- Dark mode (persistente) ----------
@@ -53,91 +51,6 @@
         });
     }
 
-    // ---------- Flags / idioma ----------
-    // utilities for toggling class 'hidden' used in markup
-    function isHidden(el) {
-        return el.classList.contains('hidden');
-    }
-    function show(el) {
-        el.classList.remove('hidden');
-        el.setAttribute('aria-hidden', 'false');
-    }
-    function hide(el) {
-        el.classList.add('hidden');
-        el.setAttribute('aria-hidden', 'true');
-    }
-
-    if (flagToggle && flagMenu) {
-        flagToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const open = isHidden(flagMenu) === false;
-            if (open) {
-                hide(flagMenu);
-                flagToggle.setAttribute('aria-expanded', 'false');
-            } else {
-                show(flagMenu);
-                flagToggle.setAttribute('aria-expanded', 'true');
-                // focus first option for keyboard users
-                const first = flagMenu.querySelector('.flag-option');
-                if (first) first.focus();
-            }
-        });
-
-        // close on outside click
-        document.addEventListener('click', (ev) => {
-            if (!flagMenu.contains(ev.target) && ev.target !== flagToggle) {
-                hide(flagMenu);
-                flagToggle.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // keyboard: ESC closes
-        document.addEventListener('keydown', (ev) => {
-            if (ev.key === 'Escape') {
-                hide(flagMenu);
-                flagToggle.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // clicking an option sets the flag icon and saves preference
-        const LANG_KEY = 'site:lang';
-        flagOptions.forEach(opt => {
-            opt.addEventListener('click', (e) => {
-                const lang = opt.getAttribute('data-lang');
-                // update visible flag in toggle
-                const flagClass = {
-                    pt: 'flag-icon-br',
-                    en: 'flag-icon-us',
-                    es: 'flag-icon-es'
-                }[lang] || 'flag-icon-br';
-
-                // update DOM inside flagToggle (keep chevron icon)
-                flagToggle.querySelectorAll('.flag-icon').forEach(el => el.remove());
-                const span = document.createElement('span');
-                span.className = `flag-icon ${flagClass}`;
-                span.setAttribute('aria-hidden', 'true');
-                flagToggle.insertBefore(span, flagToggle.firstChild);
-
-                try { localStorage.setItem(LANG_KEY, lang); } catch (e) { }
-                hide(flagMenu);
-                flagToggle.setAttribute('aria-expanded', 'false');
-            });
-        });
-
-        // apply saved lang on load
-        try {
-            const saved = localStorage.getItem(LANG_KEY);
-            if (saved) {
-                const map = { pt: 'flag-icon-br', en: 'flag-icon-us', es: 'flag-icon-es' };
-                const cls = map[saved] || 'flag-icon-br';
-                flagToggle.querySelectorAll('.flag-icon').forEach(el => el.remove());
-                const span = document.createElement('span');
-                span.className = `flag-icon ${cls}`;
-                span.setAttribute('aria-hidden', 'true');
-                flagToggle.insertBefore(span, flagToggle.firstChild);
-            }
-        } catch (e) { }
-    }
 
     // ---------- Search toggle (basic behavior) ----------
     // If you have a search overlay in index.js, adapt this. This implementation toggles a simple input.
