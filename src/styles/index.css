@@ -717,10 +717,13 @@ section[id] {
     position: relative;
 }
 
-.product-card:hover {
-    border-color: var(--primary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+/* Remover efeitos de hover/active em mobile */
+@media (min-width: 769px) {
+    .product-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
 }
 
 .product-card.active {
@@ -1090,10 +1093,13 @@ body.dark-mode .product-card {
     border: 2px solid var(--dark-border);
 }
 
-body.dark-mode .product-card:hover {
-    border-color: var(--dark-primary);
-    background: var(--dark-surface-hover);
-    box-shadow: var(--dark-shadow-lg);
+/* Remover efeitos de hover/active em mobile para modo escuro */
+@media (min-width: 769px) {
+    body.dark-mode .product-card:hover {
+        border-color: var(--dark-primary);
+        background: var(--dark-surface-hover);
+        box-shadow: var(--dark-shadow-lg);
+    }
 }
 
 body.dark-mode .product-card.active {
@@ -1247,9 +1253,12 @@ body.dark-mode .badge-promo {
     text-align: center;
 }
 
-.action-card:hover {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.15);
+/* Remover efeitos de hover em mobile para action-card */
+@media (min-width: 769px) {
+    .action-card:hover {
+        transform: translateY(-4px);
+        background: rgba(255, 255, 255, 0.15);
+    }
 }
 
 .action-icon {
@@ -1329,10 +1338,13 @@ body.dark-mode .badge-promo {
     overflow: hidden;
 }
 
-.format-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary);
+/* Remover efeitos de hover em mobile para format-card */
+@media (min-width: 769px) {
+    .format-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+    }
 }
 
 .format-header {
@@ -1413,10 +1425,13 @@ body.dark-mode .badge-promo {
     transition: all 0.3s ease;
 }
 
-.product-card-large:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary);
+/* Remover efeitos de hover em mobile para product-card-large */
+@media (min-width: 769px) {
+    .product-card-large:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+    }
 }
 
 .product-image {
@@ -1689,10 +1704,13 @@ body.dark-mode .badge-promo {
     transition: all 0.3s ease;
 }
 
-.structure-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary);
+/* Remover efeitos de hover em mobile para structure-card */
+@media (min-width: 769px) {
+    .structure-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+    }
 }
 
 .structure-icon {
@@ -1745,9 +1763,12 @@ body.dark-mode .badge-promo {
     transition: all 0.3s ease;
 }
 
-.market-item:hover {
-    border-color: var(--primary);
-    transform: translateY(-2px);
+/* Remover efeitos de hover em mobile para market-item */
+@media (min-width: 769px) {
+    .market-item:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+    }
 }
 
 .market-item i {
@@ -1782,10 +1803,13 @@ body.dark-mode .badge-promo {
     transition: all 0.3s ease;
 }
 
-.quality-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary);
+/* Remover efeitos de hover em mobile para quality-card */
+@media (min-width: 769px) {
+    .quality-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+    }
 }
 
 .quality-header {
@@ -1888,10 +1912,13 @@ body.dark-mode .badge-promo {
     transition: all 0.3s ease;
 }
 
-.value-item:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary);
+/* Remover efeitos de hover em mobile para value-item */
+@media (min-width: 769px) {
+    .value-item:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary);
+    }
 }
 
 .value-icon {
@@ -2002,8 +2029,11 @@ body.dark-mode .action-card {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-body.dark-mode .action-card:hover {
-    background: rgba(255, 255, 255, 0.08);
+/* Remover efeitos de hover em mobile para modo escuro */
+@media (min-width: 769px) {
+    body.dark-mode .action-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
 }
 
 body.dark-mode .format-card,
@@ -2015,13 +2045,17 @@ body.dark-mode .value-item {
     border-color: var(--dark-border);
 }
 
-body.dark-mode .format-card:hover,
-body.dark-mode .product-card-large:hover,
-body.dark-mode .structure-card:hover,
-body.dark-mode .quality-card:hover,
-body.dark-mode .value-item:hover {
-    border-color: var(--dark-primary);
-    box-shadow: var(--dark-shadow-lg);
+/* Remover efeitos de hover em mobile para modo escuro */
+@media (min-width: 769px) {
+
+    body.dark-mode .format-card:hover,
+    body.dark-mode .product-card-large:hover,
+    body.dark-mode .structure-card:hover,
+    body.dark-mode .quality-card:hover,
+    body.dark-mode .value-item:hover {
+        border-color: var(--dark-primary);
+        box-shadow: var(--dark-shadow-lg);
+    }
 }
 
 body.dark-mode .catalog-help {
@@ -2038,8 +2072,11 @@ body.dark-mode .market-item {
     border-color: var(--dark-border);
 }
 
-body.dark-mode .market-item:hover {
-    border-color: var(--dark-primary);
+/* Remover efeitos de hover em mobile para modo escuro */
+@media (min-width: 769px) {
+    body.dark-mode .market-item:hover {
+        border-color: var(--dark-primary);
+    }
 }
 
 body.dark-mode .footer {
@@ -2164,9 +2201,12 @@ body.dark-mode .menu-toggle span {
     transition: all 0.3s ease;
 }
 
-#imprensa .press-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
+/* Remover efeitos de hover em mobile para press-card */
+@media (min-width: 769px) {
+    #imprensa .press-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
 }
 
 #imprensa .press-card img {
