@@ -986,6 +986,32 @@
                 </div>
             </footer>
 
+            <!-- Modal de Download de PDFs -->
+            <div id="pdfModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Download de Catálogos PDF</h2>
+                        <span class="close-modal" id="closeModal">&times;</span>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-tabs">
+                            <button class="tab-button active" data-tab="leve">Linha Leve</button>
+                            <button class="tab-button" data-tab="pesada">Linha Pesada</button>
+                        </div>
+                        <div id="leve-tab" class="tab-content active">
+                            <ul class="pdf-list">
+                                <!-- Options will be populated by JS -->
+                            </ul>
+                        </div>
+                        <div id="pesada-tab" class="tab-content">
+                            <ul class="pdf-list">
+                                <!-- Options will be populated by JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <button id="backToTop" class="back-to-top" aria-label="Voltar ao topo" aria-hidden="true">
                 <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
             </button>

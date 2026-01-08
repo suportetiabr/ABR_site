@@ -1391,6 +1391,147 @@ document.addEventListener('DOMContentLoaded', function () {
 // INICIALIZAÇÃO
 // ====================
 
+// Arrays de opções de PDF
+const leveOptions = [
+  { label: 'Catálogo Completo Linha Leve', url: 'https://abr.ind.br/catalogos/pb/ABR%20Catalogo%20LINHA%20LEVE.pdf' },
+  { label: 'Linha FIAT', url: 'https://abr.ind.br/catalogos/pb/2%20-%20FIAT%202019.pdf' },
+  { label: 'Linha FORD', url: 'https://abr.ind.br/catalogos/pb/3%20-%20FORD%202019%20site.pdf' },
+  { label: 'Linha GM', url: 'https://abr.ind.br/catalogos/pb/4%20-%20GM%202019.pdf' },
+  { label: 'Linha Honda', url: 'https://abr.ind.br/catalogos/pb/5%20-%20HONDA%202019.pdf' },
+  { label: 'Linha HYNDAI / MITSUBISHI', url: 'https://abr.ind.br/catalogos/pb/6%20-%20HYUNDAI-MITSUBISHI%202019.pdf' },
+  { label: 'Linha ASIA-KIA', url: 'https://abr.ind.br/catalogos/pb/7%20-%20ASIA-KIA%202019.pdf' },
+  { label: 'Linha NISSAN', url: 'https://abr.ind.br/catalogos/pb/8%20-%20NISSAN%202019.pdf' },
+  { label: 'Linha PEUGEOT / CITROEN', url: 'https://abr.ind.br/catalogos/pb/9%20-%20PEUGEOT-CITROEN%202019.pdf' },
+  { label: 'Linha RENAULT', url: 'https://abr.ind.br/catalogos/pb/10%20-%20RENAULT%202019.pdf' },
+  { label: 'Linha SUZUKI', url: 'https://abr.ind.br/catalogos/pb/11%20-%20SUZUKI%202019.pdf' },
+  { label: 'Linha TOYOTA', url: 'https://abr.ind.br/catalogos/pb/12%20-%20TOYOTA%202019.pdf' },
+  { label: 'Linha VOLKSWAGEN', url: 'https://abr.ind.br/catalogos/pb/13%20-%20VOLKSWAGEN%202019.pdf' }
+];
+
+const pesadaOptions = [
+  { label: 'Catálogo Completo Linha Pesada', url: 'https://abr.ind.br/catalogos/pb/ABR%20Catalogo%20LINHA%20PESADA.pdf' },
+  { label: 'Linha CUMMINS', url: 'https://abr.ind.br/catalogos/pb/1%20-%20ABR%20Catalogo%20CUMMINS.pdf' },
+  { label: 'Linha Mercedes', url: 'https://abr.ind.br/catalogos/pb/2%20-%20ABR%20Catalogo%20MERCEDES.pdf' },
+  { label: 'Linha MWM', url: 'https://abr.ind.br/catalogos/pb/3%20-%20ABR%20Catalogo%20MWM.pdf' },
+  { label: 'Linha MAXION / PERKINS', url: 'https://abr.ind.br/catalogos/pb/4%20-%20ABR%20Catalogo%20MAXION%20PERKINS.pdf' },
+  { label: 'Linha IVECO', url: 'https://abr.ind.br/catalogos/pb/5%20-%20ABR%20Catalogo%20IVECO.pdf' },
+  { label: 'Linha SCANIA', url: 'https://abr.ind.br/catalogos/pb/6%20-%20ABR%20Catalogo%20SCANIA.pdf' },
+  { label: 'Linha JOHN DEERE', url: 'https://abr.ind.br/catalogos/pb/7%20-%20ABR%20Catalogo%20JOHN%20DEERE.pdf' },
+  { label: 'Linha FORD', url: 'https://abr.ind.br/catalogos/pb/8%20-%20ABR%20Catalogo%20FORD.pdf' },
+  { label: 'Linha VALTRA', url: 'https://abr.ind.br/catalogos/pb/9%20-%20ABR%20Catalogo%20VALTRA.pdf' }
+];
+
+// ====================
+// GERENCIADOR DO MODAL DE PDF
+// ====================
+
+class PDFModalManager {
+  constructor() {
+    this.modal = document.getElementById('pdfModal');
+    this.closeBtn = document.getElementById('closeModal');
+    this.downloadBtn = document.getElementById('downloadPdfBtn');
+    this.tabButtons = document.querySelectorAll('.tab-button');
+    this.tabContents = document.querySelectorAll('.tab-content');
+    this.init();
+  }
+
+  init() {
+    if (this.downloadBtn) {
+      this.downloadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.openModal();
+      });
+    }
+
+    if (this.closeBtn) {
+      this.closeBtn.addEventListener('click', () => this.closeModal());
+    }
+
+    if (this.modal) {
+      this.modal.addEventListener('click', (e) => {
+        if (e.target === this.modal) {
+          this.closeModal();
+        }
+      });
+    }
+
+    // Tab switching
+    this.tabButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tab = button.getAttribute('data-tab');
+        this.switchTab(tab);
+      });
+    });
+
+    // Populate lists
+    this.populatePDFLists();
+  }
+
+  openModal() {
+    if (this.modal) {
+      this.modal.style.display = 'block';
+      document.body.style.overflow = 'hidden'; // Prevent background scroll
+    }
+  }
+
+  closeModal() {
+    if (this.modal) {
+      this.modal.style.display = 'none';
+      document.body.style.overflow = ''; // Restore scroll
+    }
+  }
+
+  switchTab(tab) {
+    // Update tab buttons
+    this.tabButtons.forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.getAttribute('data-tab') === tab) {
+        btn.classList.add('active');
+      }
+    });
+
+    // Update tab contents
+    this.tabContents.forEach(content => {
+      content.classList.remove('active');
+      if (content.id === `${tab}-tab`) {
+        content.classList.add('active');
+      }
+    });
+  }
+
+  populatePDFLists() {
+    // Populate leve tab
+    const leveList = document.querySelector('#leve-tab .pdf-list');
+    if (leveList) {
+      leveOptions.forEach(option => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = option.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = option.label;
+        li.appendChild(a);
+        leveList.appendChild(li);
+      });
+    }
+
+    // Populate pesada tab
+    const pesadaList = document.querySelector('#pesada-tab .pdf-list');
+    if (pesadaList) {
+      pesadaOptions.forEach(option => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = option.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.textContent = option.label;
+        li.appendChild(a);
+        pesadaList.appendChild(li);
+      });
+    }
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Inicializar gerenciadores
   window.themeManager = new ThemeManager();
@@ -1402,6 +1543,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.menuToggle = new MenuToggle();
   window.scrollManager = new ScrollManager();
   window.productCarousel = new ProductCarousel();
+  window.pdfModalManager = new PDFModalManager();
 });
 
 // ====================
@@ -1416,3 +1558,4 @@ window.CatalogFeatures = CatalogFeatures;
 window.AboutFeatures = AboutFeatures;
 window.MenuToggle = MenuToggle;
 window.ProductCarousel = ProductCarousel;
+window.PDFModalManager = PDFModalManager;
