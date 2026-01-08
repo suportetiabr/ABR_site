@@ -1505,32 +1505,20 @@ class PDFModalManager {
 
     // Populate lists with enhanced links
     this.populatePDFLists();
-
-    // Prevent body scroll when modal is open
-    this.setupScrollPrevention();
   }
 
-  setupScrollPrevention() {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-          const display = this.modal.style.display;
-          if (display === 'block' && !this.isOpen) {
-            this.isOpen = true;
-            document.body.style.overflow = 'hidden';
-            this.focusTrap();
-          } else if (display === 'none' && this.isOpen) {
-            this.isOpen = false;
-            document.body.style.overflow = '';
-          }
-        }
-      });
-    });
-
-    observer.observe(this.modal, {
-      attributes: true,
-      attributeFilter: ['style']
-    });
+  getScrollbarWidth() {
+    // Calcular largura da barra de scroll para compensar padding
+    const scrollDiv = document.createElement('div');
+    scrollDiv.style.width = '100px';
+    scrollDiv.style.height = '100px';
+    scrollDiv.style.overflow = 'scroll';
+    scrollDiv.style.position = 'absolute';
+    scrollDiv.style.top = '-9999px';
+    document.body.appendChild(scrollDiv);
+    const scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+    document.body.removeChild(scrollDiv);
+    return scrollbarWidth;
   }
 
   focusTrap() {
@@ -1565,7 +1553,16 @@ class PDFModalManager {
   openModal() {
     if (this.modal) {
       this.modal.style.display = 'block';
+      this.isOpen = true;
+
+      // Esconder o header da página principal
+      this.hideMainHeader();
+
+      // Impedir completamente qualquer scroll da página de fundo
+      this.preventBackgroundScroll();
+
       this.provideHapticFeedback();
+      this.focusTrap();
       // Announce to screen readers
       this.announceToScreenReader('Modal de download de PDFs aberto');
     }
@@ -1574,11 +1571,171 @@ class PDFModalManager {
   closeModal() {
     if (this.modal) {
       this.modal.style.display = 'none';
+      this.isOpen = false;
+
+      // Mostrar novamente o header da página principal
+      this.showMainHeader();
+
+      // Restaurar scroll da página
+      this.restoreBackgroundScroll();
+
       this.provideHapticFeedback();
       // Return focus to trigger button
       if (this.downloadBtn) this.downloadBtn.focus();
       // Announce to screen readers
       this.announceToScreenReader('Modal de download de PDFs fechado');
+    }
+  }
+
+  preventBackgroundScroll() {
+    // Método ultra-robusto para prevenir scroll da página de fundo
+    const scrollbarWidth = this.getScrollbarWidth();
+
+    // Salvar estado original com mais detalhes
+    this.originalBodyStyle = {
+      overflow: document.body.style.overflow || '',
+      paddingRight: document.body.style.paddingRight || '',
+      position: document.body.style.position || '',
+      width: document.body.style.width || '',
+      height: document.body.style.height || ''
+    };
+
+    this.originalHtmlStyle = {
+      overflow: document.documentElement.style.overflow || ''
+    };
+
+    // Aplicar bloqueio múltiplo de scroll
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = scrollbarWidth + 'px';
+    document.documentElement.style.overflow = 'hidden';
+
+    // Para dispositivos móveis, também bloquear scroll no html
+    if (this.isMobileDevice()) {
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      document.body.style.top = '0';
+      document.body.style.left = '0';
+    }
+
+    // Criar event listeners mais específicos
+    this.preventScrollEvents();
+  }
+
+  restoreBackgroundScroll() {
+    // Restaurar estado original completamente
+    if (this.originalBodyStyle) {
+      Object.assign(document.body.style, this.originalBodyStyle);
+    }
+    if (this.originalHtmlStyle) {
+      Object.assign(document.documentElement.style, this.originalHtmlStyle);
+    }
+
+    // Limpar event listeners
+    this.restoreScrollEvents();
+  }
+
+  preventScrollEvents() {
+    // Prevenir scroll via múltiplas técnicas
+    this.scrollHandlers = {
+      wheel: (e) => {
+        if (!this.isModalContent(e.target)) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      },
+
+      touchmove: (e) => {
+        if (!this.isModalContent(e.target)) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      },
+
+      touchstart: (e) => {
+        // Permitir touch dentro do modal, mas prevenir zoom
+        if (!this.isModalContent(e.target)) {
+          if (e.touches.length > 1) {
+            e.preventDefault();
+          }
+        }
+      },
+
+      keydown: (e) => {
+        const scrollKeys = [
+          'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+          'PageUp', 'PageDown', 'Home', 'End', ' ',
+          'Tab' // Tab pode causar scroll indesejado
+        ];
+
+        if (scrollKeys.includes(e.key) && !this.isModalContent(e.target)) {
+          // Só prevenir se não estiver focando elementos do modal
+          const activeElement = document.activeElement;
+          if (!this.modal.contains(activeElement)) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+          }
+        }
+      },
+
+      contextmenu: (e) => {
+        // Prevenir menu de contexto que pode causar scroll
+        if (!this.isModalContent(e.target)) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    // Adicionar event listeners com capture para máxima prioridade
+    Object.entries(this.scrollHandlers).forEach(([event, handler]) => {
+      document.addEventListener(event, handler, { passive: false, capture: true });
+    });
+  }
+
+  restoreScrollEvents() {
+    // Remover todos os event listeners
+    if (this.scrollHandlers) {
+      Object.entries(this.scrollHandlers).forEach(([event, handler]) => {
+        document.removeEventListener(event, handler, { capture: true });
+      });
+      this.scrollHandlers = null;
+    }
+  }
+
+  isModalContent(element) {
+    // Verificação mais precisa se o elemento está dentro do modal
+    return this.modal && (
+      this.modal.contains(element) ||
+      element === this.modal ||
+      element.closest('.modal') === this.modal
+    );
+  }
+
+  isMobileDevice() {
+    // Detectar dispositivos móveis/touch
+    return (
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+      ('ontouchstart' in window) ||
+      (window.innerWidth <= 768 && window.innerHeight <= 1024)
+    );
+  }
+
+  hideMainHeader() {
+    // Esconder o header da página principal
+    const header = document.querySelector('.header');
+    if (header) {
+      header.style.display = 'none';
+    }
+  }
+
+  showMainHeader() {
+    // Mostrar novamente o header da página principal
+    const header = document.querySelector('.header');
+    if (header) {
+      header.style.display = '';
     }
   }
 

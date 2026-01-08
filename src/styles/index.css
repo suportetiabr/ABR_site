@@ -3065,11 +3065,14 @@ body.dark-mode .spinner {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
-    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
     padding: 20px;
     box-sizing: border-box;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: hidden;
+    /* Previne qualquer scroll no modal container */
 }
 
 .modal-content {
@@ -3078,12 +3081,21 @@ body.dark-mode .spinner {
     padding: 0;
     border-radius: var(--radius-lg);
     width: 100%;
-    max-width: 600px;
-    max-height: 90vh;
-    box-shadow: var(--shadow-xl);
-    animation: modalFadeIn 0.3s ease-out;
+    max-width: 650px;
+    max-height: 85vh;
+    box-shadow: var(--shadow-2xl);
+    animation: modalFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     display: flex;
     flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    /* Garante que o conteúdo interno controle o scroll */
+}
+
+body.dark-mode .modal-content {
+    background-color: var(--dark-bg-secondary);
+    color: var(--dark-text-primary);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
 }
 
 body.dark-mode .modal-content {
@@ -3107,192 +3119,299 @@ body.dark-mode .modal-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--border-light);
+    padding: 24px 28px 20px;
+    border-bottom: 2px solid var(--border-light);
+    background: linear-gradient(135deg, var(--bg-white) 0%, var(--bg-light) 100%);
     flex-shrink: 0;
+    position: relative;
 }
 
 body.dark-mode .modal-header {
     border-bottom-color: var(--dark-border);
+    background: linear-gradient(135deg, var(--dark-bg-secondary) 0%, var(--dark-bg-tertiary) 100%);
 }
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.025em;
+}
+
+body.dark-mode .modal-header h2 {
+    color: var(--dark-primary);
 }
 
 .close-modal {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     cursor: pointer;
     color: var(--text-muted);
-    transition: color 0.2s;
+    transition: all 0.2s ease;
     padding: 8px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     margin: -8px;
+    background-color: transparent;
+    border: 2px solid transparent;
 }
 
 .close-modal:hover {
-    color: var(--text-primary);
+    color: var(--accent);
     background-color: var(--bg-light);
+    border-color: var(--border-light);
+    transform: scale(1.05);
+}
+
+.close-modal:active {
+    transform: scale(0.95);
 }
 
 body.dark-mode .close-modal:hover {
-    color: var(--dark-text-primary);
+    color: var(--dark-accent);
     background-color: var(--dark-bg-tertiary);
+    border-color: var(--dark-border);
 }
 
 .modal-body {
-    padding: 20px;
+    padding: 0;
     flex: 1;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Importante: controla o scroll interno */
+    min-height: 0;
+    /* Permite que flex: 1 funcione corretamente */
 }
 
 .modal-tabs {
     display: flex;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-light);
+    margin: 0;
+    border-bottom: 2px solid var(--border-light);
+    background: var(--bg-light);
     position: sticky;
     top: 0;
-    background-color: inherit;
-    z-index: 1;
-    padding-bottom: 10px;
+    z-index: 2;
+    padding: 0 28px;
+    gap: 4px;
 }
 
 body.dark-mode .modal-tabs {
     border-bottom-color: var(--dark-border);
+    background: var(--dark-bg-tertiary);
 }
 
 .tab-button {
     flex: 1;
-    padding: 12px 16px;
+    padding: 16px 20px;
     background: none;
     border: none;
     cursor: pointer;
     font-weight: 600;
     color: var(--text-muted);
-    transition: all 0.2s ease;
-    border-bottom: 2px solid transparent;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 3px solid transparent;
     border-radius: var(--radius-md) var(--radius-md) 0 0;
-    font-size: 0.95rem;
-    min-height: 44px;
+    font-size: 1rem;
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.tab-button:hover::before {
+    left: 100%;
 }
 
 .tab-button:hover {
-    background-color: var(--bg-light);
+    background-color: var(--bg-white);
     color: var(--text-primary);
+    transform: translateY(-2px);
 }
 
 .tab-button.active {
     color: var(--primary);
     border-bottom-color: var(--primary);
-    background-color: var(--primary-light);
+    background: linear-gradient(135deg, var(--primary-light) 0%, rgba(77, 166, 255, 0.1) 100%);
+    box-shadow: 0 2px 8px rgba(77, 166, 255, 0.2);
+}
+
+.tab-button.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 2px 2px 0 0;
 }
 
 body.dark-mode .tab-button:hover {
-    background-color: var(--dark-bg-tertiary);
+    background-color: var(--dark-bg-secondary);
     color: var(--dark-text-primary);
 }
 
 body.dark-mode .tab-button.active {
     color: var(--dark-primary);
     border-bottom-color: var(--dark-primary);
-    background-color: rgba(77, 166, 255, 0.1);
+    background: linear-gradient(135deg, rgba(77, 166, 255, 0.15) 0%, rgba(77, 166, 255, 0.05) 100%);
+    box-shadow: 0 2px 8px rgba(77, 166, 255, 0.3);
+}
+
+body.dark-mode .pdf-list a {
+    background: linear-gradient(135deg, var(--dark-bg-tertiary) 0%, var(--dark-bg-secondary) 100%);
+    color: var(--dark-text-primary);
+    border-color: var(--dark-border);
+}
+
+body.dark-mode .pdf-list a:hover {
+    background: linear-gradient(135deg, rgba(77, 166, 255, 0.2) 0%, rgba(77, 166, 255, 0.1) 100%);
+    color: var(--dark-primary);
+    border-color: var(--dark-primary);
+}
+
+body.dark-mode .pdf-list a .pdf-icon {
+    background: rgba(77, 166, 255, 0.15);
+    color: var(--dark-primary);
+}
+
+body.dark-mode .pdf-list a .download-icon {
+    background: rgba(77, 166, 255, 0.2);
+    color: var(--dark-primary);
+}
+
+body.dark-mode .pdf-list a:hover .download-icon {
+    background: var(--dark-primary);
+    color: white;
 }
 
 .tab-content {
     display: none;
-    animation: tabFadeIn 0.3s ease-out;
+    animation: tabFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 24px 28px;
+    background: var(--bg-white);
 }
 
 .tab-content.active {
-    display: block;
+    display: flex;
+    flex-direction: column;
 }
 
-@keyframes tabFadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+body.dark-mode .tab-content {
+    background: var(--dark-bg-secondary);
 }
 
 .pdf-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .pdf-list li {
-    margin-bottom: 8px;
+    margin: 0;
 }
 
 .pdf-list a {
     display: flex;
     align-items: center;
-    padding: 16px 20px;
-    background-color: var(--bg-light);
+    padding: 20px 24px;
+    background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-white) 100%);
     color: var(--text-primary);
     text-decoration: none;
-    border-radius: var(--radius-md);
-    transition: all 0.2s ease;
+    border-radius: var(--radius-lg);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 1rem;
     line-height: 1.4;
-    min-height: 48px;
+    min-height: 56px;
     box-sizing: border-box;
     position: relative;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.pdf-list a:hover {
+    background: linear-gradient(135deg, var(--primary-light) 0%, rgba(77, 166, 255, 0.1) 100%);
+    color: var(--primary);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(77, 166, 255, 0.15);
+    border-color: var(--primary);
+}
+
+.pdf-list a:active {
+    transform: translateY(-1px) scale(0.98);
+    transition: transform 0.1s ease;
 }
 
 .pdf-list a .pdf-icon {
-    margin-right: 12px;
+    margin-right: 16px;
     flex-shrink: 0;
     color: var(--primary);
-    font-size: 1.1rem;
+    font-size: 1.3rem;
+    background: var(--primary-light);
+    padding: 10px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
 }
 
 .pdf-list a .pdf-text {
     flex: 1;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
 .pdf-list a .download-icon {
     margin-left: auto;
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
+    opacity: 0.6;
+    transition: all 0.3s ease;
     color: var(--primary);
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     flex-shrink: 0;
-}
-
-.pdf-list a:hover {
-    background-color: var(--primary-light);
-    color: var(--primary);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
+    background: rgba(77, 166, 255, 0.1);
+    padding: 8px;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .pdf-list a:hover .download-icon {
     opacity: 1;
-}
-
-.pdf-list a:active {
-    transform: translateY(0);
-    box-shadow: none;
+    transform: scale(1.1);
+    background: var(--primary);
+    color: white;
 }
 
 body.dark-mode .pdf-list a {
@@ -3428,54 +3547,72 @@ body.dark-mode .close-modal:focus {
 @media (max-width: 768px) {
     .modal {
         padding: 10px;
+        align-items: stretch;
+        justify-content: stretch;
     }
 
     .modal-content {
         max-height: 95vh;
         border-radius: var(--radius-md);
+        margin: 0;
+        width: calc(100vw - 20px);
+        max-width: none;
     }
 
     .modal-header {
-        padding: 16px 20px;
+        padding: 20px 24px 16px;
     }
 
     .modal-header h2 {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
     }
 
     .close-modal {
-        font-size: 20px;
-        width: 36px;
-        height: 36px;
-    }
-
-    .modal-body {
-        padding: 16px;
+        font-size: 24px;
+        width: 40px;
+        height: 40px;
     }
 
     .modal-tabs {
-        margin-bottom: 16px;
+        padding: 0 24px;
+        gap: 2px;
     }
 
     .tab-button {
-        padding: 10px 12px;
-        font-size: 0.9rem;
-        min-height: 40px;
+        padding: 14px 16px;
+        font-size: 0.95rem;
+        min-height: 44px;
+        font-weight: 600;
+    }
+
+    .tab-content {
+        padding: 20px 24px;
+    }
+
+    .pdf-list {
+        gap: 10px;
     }
 
     .pdf-list a {
-        padding: 14px 16px;
-        font-size: 0.9rem;
-        min-height: 44px;
+        padding: 18px 20px;
+        font-size: 0.95rem;
+        min-height: 52px;
+        border-radius: var(--radius-md);
     }
 
     .pdf-list a .pdf-icon {
-        font-size: 1.1rem;
-        margin-right: 10px;
+        font-size: 1.2rem;
+        margin-right: 14px;
+        width: 40px;
+        height: 40px;
+        padding: 8px;
     }
 
     .pdf-list a .download-icon {
-        font-size: 0.9rem;
+        font-size: 1rem;
+        width: 32px;
+        height: 32px;
+        padding: 6px;
     }
 }
 
@@ -3487,34 +3624,55 @@ body.dark-mode .close-modal:focus {
     .modal-content {
         max-height: 98vh;
         border-radius: var(--radius-sm);
+        width: calc(100vw - 10px);
     }
 
     .modal-header {
-        padding: 12px 16px;
+        padding: 16px 20px 12px;
     }
 
     .modal-header h2 {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
 
-    .modal-body {
-        padding: 12px;
+    .close-modal {
+        font-size: 22px;
+        width: 36px;
+        height: 36px;
+    }
+
+    .modal-tabs {
+        padding: 0 20px;
     }
 
     .tab-button {
-        padding: 8px 10px;
-        font-size: 0.85rem;
-        min-height: 36px;
-    }
-
-    .pdf-list a {
         padding: 12px 14px;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         min-height: 40px;
     }
 
+    .tab-content {
+        padding: 16px 20px;
+    }
+
+    .pdf-list a {
+        padding: 16px 18px;
+        font-size: 0.9rem;
+        min-height: 48px;
+    }
+
     .pdf-list a .pdf-icon {
-        font-size: 1rem;
-        margin-right: 8px;
+        font-size: 1.1rem;
+        margin-right: 12px;
+        width: 36px;
+        height: 36px;
+        padding: 7px;
+    }
+
+    .pdf-list a .download-icon {
+        font-size: 0.95rem;
+        width: 28px;
+        height: 28px;
+        padding: 5px;
     }
 }
