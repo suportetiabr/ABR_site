@@ -1162,11 +1162,15 @@ body.dark-mode .light-mode-only {
     display: none;
 }
 
-/* Estados de foco */
+/* Estados de foco - apenas com teclado para melhor UX */
 body.dark-mode *:focus {
+    outline: none;
+}
+
+body.dark-mode *:focus-visible {
     outline: 2px solid var(--dark-primary);
     outline-offset: 2px;
-    box-shadow: 0 0 0 3px rgba(77, 166, 255, 0.1);
+    box-shadow: 0 0 0 2px rgba(77, 166, 255, 0.2);
 }
 
 /* Efeitos de gradiente noturno */
@@ -3453,18 +3457,28 @@ body.dark-mode .pdf-list a .download-icon {
     }
 }
 
-/* Focus states for accessibility */
+/* Focus states for accessibility - keyboard only */
+.tab-button:focus-visible,
+.pdf-list a:focus-visible,
+.close-modal:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgba(77, 166, 255, 0.15);
+}
+
+body.dark-mode .tab-button:focus-visible,
+body.dark-mode .pdf-list a:focus-visible,
+body.dark-mode .close-modal:focus-visible {
+    outline-color: var(--dark-primary);
+    box-shadow: 0 0 0 2px rgba(77, 166, 255, 0.25);
+}
+
+/* Remove outline on click para melhor visual */
 .tab-button:focus,
 .pdf-list a:focus,
 .close-modal:focus {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-}
-
-body.dark-mode .tab-button:focus,
-body.dark-mode .pdf-list a:focus,
-body.dark-mode .close-modal:focus {
-    outline-color: var(--dark-primary);
+    outline: none;
+    box-shadow: none;
 }
 
 /* Loading state for PDF links */
