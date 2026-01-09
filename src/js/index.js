@@ -1101,6 +1101,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('contactForm');
   const formId = 'xaqygwgr'; // Substitua pelo seu Form ID
 
+  // Se o formulário não existe na página, sair da função
+  if (!form) {
+    return;
+  }
+
   // Elementos
   const nome = document.getElementById('nome');
   const email = document.getElementById('email');
@@ -1120,23 +1125,33 @@ document.addEventListener('DOMContentLoaded', function () {
   const replyTo = document.getElementById('replyTo');
   const timestamp = document.getElementById('timestamp');
 
+  // Verificar se todos os elementos obrigatórios existem
+  if (!nome || !email || !assunto || !mensagem) {
+    console.warn('Alguns elementos do formulário não foram encontrados');
+    return;
+  }
+
   // Inicialização
   updateCharCount();
-  timestamp.value = new Date().toISOString();
+  if (timestamp) {
+    timestamp.value = new Date().toISOString();
+  }
 
   // Event Listeners
-  mensagem.addEventListener('input', updateCharCount);
-  telefone.addEventListener('input', formatPhone);
-  clearBtn.addEventListener('click', clearForm);
+  if (mensagem) mensagem.addEventListener('input', updateCharCount);
+  if (telefone) telefone.addEventListener('input', formatPhone);
+  if (clearBtn) clearBtn.addEventListener('click', clearForm);
   form.addEventListener('submit', handleSubmit);
 
   // Validação em tempo real
   [nome, email, assunto, mensagem].forEach(field => {
-    field.addEventListener('blur', () => validateField(field));
-    field.addEventListener('input', () => clearFieldError(field));
+    if (field) {
+      field.addEventListener('blur', () => validateField(field));
+      field.addEventListener('input', () => clearFieldError(field));
+    }
   });
 
-  privacy.addEventListener('change', () => clearFieldError(privacy));
+  if (privacy) privacy.addEventListener('change', () => clearFieldError(privacy));
 
   // Funções
   function updateCharCount() {
