@@ -2,6 +2,24 @@
 // SISTEMA DE TEMA AVANÇADO
 // ====================
 
+// Global handler: suppress known extension messaging unhandled rejection
+// Reason: some browser extensions cause this error and it floods console:
+// "A listener indicated an asynchronous response by returning true, but the message channel closed before a response was received"
+window.addEventListener('unhandledrejection', function (event) {
+  try {
+    const reason = event.reason;
+    const message = reason && (reason.message || String(reason));
+    if (typeof message === 'string' && message.indexOf('A listener indicated an asynchronous response by returning true') !== -1) {
+      // prevent the default logging of the unhandled rejection
+      event.preventDefault();
+      // keep a low-verbosity log for debugging if needed
+      console.info('Suppressed extension messaging unhandled rejection (non-actionable).');
+    }
+  } catch (e) {
+    // ignore errors in the handler
+  }
+});
+
 class ThemeManager {
   constructor() {
     this.theme = localStorage.getItem('theme') || this.getSystemPreference();
@@ -59,12 +77,12 @@ class ThemeManager {
     }, this.transitionDuration);
 
     // Remover qualquer estilo inicial temporário que evitou FOUC
-    try{
+    try {
       var initStyle = document.getElementById('initial-theme-style');
-      if(initStyle && initStyle.parentNode){
+      if (initStyle && initStyle.parentNode) {
         initStyle.parentNode.removeChild(initStyle);
       }
-    }catch(e){/* ignore */}
+    } catch (e) {/* ignore */ }
 
     // Log de performance
     const elapsed = Date.now() - startTime;
