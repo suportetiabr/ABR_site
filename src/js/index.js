@@ -58,6 +58,14 @@ class ThemeManager {
       document.body.classList.remove('theme-loading');
     }, this.transitionDuration);
 
+    // Remover qualquer estilo inicial temporário que evitou FOUC
+    try{
+      var initStyle = document.getElementById('initial-theme-style');
+      if(initStyle && initStyle.parentNode){
+        initStyle.parentNode.removeChild(initStyle);
+      }
+    }catch(e){/* ignore */}
+
     // Log de performance
     const elapsed = Date.now() - startTime;
     if (elapsed > 50) {
@@ -174,16 +182,8 @@ class ThemeManager {
   }
 
   monitorThemePerformance() {
-    // Monitorar performance das mudanças de tema
-    let themeChangeCount = 0;
-    const originalApplyTheme = this.applyTheme;
-    this.applyTheme = function () {
-      themeChangeCount++;
-      const startTime = Date.now();
-      originalApplyTheme.call(this);
-      const duration = Date.now() - startTime;
-      console.log(`Tema alterado ${themeChangeCount} vezes. Duração: ${duration}ms`);
-    };
+    // Desativado: monitor de performance de tema (removido logs em produção)
+    return;
   }
 
   provideHapticFeedback() {
@@ -702,7 +702,7 @@ class CatalogFeatures {
 
   showProductModal(productId) {
     // Implementar modal de produto
-    console.log('Mostrar modal para produto:', productId);
+    console.debug && console.debug('Mostrar modal para produto:', productId);
   }
 }
 
@@ -1899,7 +1899,7 @@ class PDFModalManager {
     }, 150);
 
     // Track download (optional analytics)
-    console.log(`PDF download initiated: ${label}`);
+    console.debug && console.debug(`PDF download initiated: ${label}`);
 
     // Announce to screen readers
     this.announceToScreenReader(`Iniciando download de ${label}`);

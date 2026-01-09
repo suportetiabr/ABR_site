@@ -61,6 +61,29 @@
 
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
+        <!-- Prevent FOUC: apply minimal inline theme styles early based on saved preference -->
+        <script>
+            (function(){
+                try{
+                    var theme = localStorage.getItem('theme');
+                    if(!theme){
+                        theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+                    }
+                    // Add a minimal inline style to avoid flash while full CSS loads
+                    var style = document.createElement('style');
+                    style.id = 'initial-theme-style';
+                    if(theme === 'dark'){
+                        style.textContent = 'body{background:#0b0f13;color:#e6eef8;}';
+                    } else {
+                        style.textContent = 'body{background:#ffffff;color:#0b1533;}';
+                    }
+                    document.head.appendChild(style);
+                }catch(e){/* ignore */}
+            })();
+        </script>
+
+        <link rel="stylesheet" href="styles/index.css" />
+
 </head>
 
 <body>
@@ -992,8 +1015,6 @@
             <button id="backToTop" class="back-to-top" aria-label="Voltar ao topo" aria-hidden="true">
                 <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
             </button>
-
-            <link rel="stylesheet" href="styles/index.css" />
 
             <script src="js/index.js"></script>
             <script src="js/contato.js"></script>
