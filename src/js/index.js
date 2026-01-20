@@ -2103,27 +2103,30 @@ window.PressCardsManager = PressCardsManager;
 window.RepresentantesManager = RepresentantesManager;
 
 // ====================
-// VÍDEO LAZY LOAD
+// VÍDEO LAZY LOAD COM CONSENTIMENTO
 // ====================
 
 document.addEventListener('DOMContentLoaded', function() {
-    const videoPlaceholder = document.getElementById('video-placeholder');
-    if (videoPlaceholder) {
-        videoPlaceholder.addEventListener('click', function() {
-            const iframe = document.createElement('iframe');
-            iframe.src = 'https://www.youtube-nocookie.com/embed/jm-ymoKL9rc';
-            iframe.title = 'Vídeo institucional';
-            iframe.frameBorder = '0';
-            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-            iframe.allowFullscreen = true;
-            iframe.style.width = '100%';
-            iframe.style.maxWidth = '800px';
-            iframe.style.height = '450px';
-            iframe.style.borderRadius = 'var(--radius-lg)';
-            iframe.style.boxShadow = 'var(--shadow-lg)';
+    const loadVideoBtn = document.getElementById('load-video-btn');
+    if (loadVideoBtn) {
+        loadVideoBtn.addEventListener('click', function() {
+            const videoPlaceholder = document.getElementById('video-placeholder');
+            if (videoPlaceholder) {
+                const iframe = document.createElement('iframe');
+                iframe.src = 'https://www.youtube-nocookie.com/embed/jm-ymoKL9rc';
+                iframe.title = 'Vídeo institucional';
+                iframe.frameBorder = '0';
+                iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+                iframe.allowFullscreen = true;
+                iframe.style.width = '100%';
+                iframe.style.maxWidth = '800px';
+                iframe.style.height = videoPlaceholder.offsetHeight + 'px'; // Usar altura atual do placeholder
+                iframe.style.borderRadius = 'var(--radius-lg)';
+                iframe.style.boxShadow = 'var(--shadow-lg)';
 
-            // Substituir o placeholder pelo iframe
-            videoPlaceholder.parentNode.replaceChild(iframe, videoPlaceholder);
+                // Substituir o placeholder pelo iframe
+                videoPlaceholder.parentNode.replaceChild(iframe, videoPlaceholder);
+            }
         });
     }
 });

@@ -687,10 +687,15 @@
 
                 <div class="press-container" role="region" aria-label="Conteúdo de imprensa">
                     <div class="press-video" aria-hidden="false">
-                        <iframe src="https://www.youtube-nocookie.com/embed/jm-ymoKL9rc" title="Vídeo institucional"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowfullscreen>
-                        </iframe>
+                        <div id="video-placeholder" class="video-placeholder" style="background-image: url('https://img.youtube.com/vi/jm-ymoKL9rc/maxresdefault.jpg');">
+                            <div class="video-overlay">
+                                <button class="play-button" id="load-video-btn" aria-label="Carregar vídeo institucional">
+                                    <i class="fas fa-play"></i>
+                                    <span class="play-text">Reproduzir Vídeo</span>
+                                </button>
+                                <p class="consent-text">Ao clicar, você concorda com o carregamento do vídeo do YouTube</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="press-grid" role="list">
