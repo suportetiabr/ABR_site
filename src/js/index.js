@@ -22,84 +22,82 @@ window.addEventListener('unhandledrejection', function (event) {
 
 class ThemeManager {
   constructor() {
-    this.theme = localStorage.getItem('theme') || this.getSystemPreference();
+    this.storageKey = 'theme';
     this.transitionDuration = 300;
+    this.mql = (window.matchMedia) ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+    this.theme = this.getInitialTheme();
     this.init();
   }
 
-  init() {
-    this.applyTheme();
-    this.setupEventListeners();
-    this.setupTransition();
-    this.setupThemePreferences();
-    this.addDarkModeUtilities();
-    this.monitorThemePerformance();
+  getInitialTheme() {
+    try {
+      const saved = localStorage.getItem(this.storageKey);
+      if (saved === 'dark' || saved === 'light') return saved;
+    } catch (e) { /* ignore */ }
+    return this.getSystemPreference();
   }
 
   getSystemPreference() {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    try {
+      return (this.mql ? this.mql.matches : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) ? 'dark' : 'light';
+    } catch (e) {
+      return 'light';
+    }
   }
 
-  applyTheme() {
-    const startTime = Date.now();
+  init() {
+    // Não persiste automaticamente; só persiste quando o usuário alternar manualmente
+    this.applyTheme({ persist: false });
+    this.setupEventListeners();
+  }
 
-    // Adicionar classe de carregamento
-    document.body.classList.add('theme-loading');
+  applyTheme({ persist = false } = {}) {
+    const startTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    const root = document.documentElement;
 
-    // Remover ambas as classes primeiro
-    document.body.classList.remove('light-mode', 'dark-mode');
+    // Transições apenas durante troca de tema
+    root.classList.add('theme-loading');
 
-    // Adicionar classe do tema atual
-    if (this.theme === 'dark') {
-      document.body.classList.add('dark-mode');
-      document.body.style.setProperty('--theme-transition', `${this.transitionDuration}ms`);
-    } else {
-      document.body.classList.add('light-mode');
-    }
+    // Fonte de verdade: atributo no <html>
+    root.setAttribute('data-theme', this.theme);
 
-    // Atualizar ícone
+    // Atualizar ícone do botão
     this.updateIcon();
 
-    // Ajustar imagens para o tema
-    this.adjustImagesForTheme();
+    // Remover estilo inicial que evitou FOUC (se existir)
+    try {
+      const initStyle = document.getElementById('initial-theme-style');
+      if (initStyle) initStyle.remove();
+    } catch (e) { /* ignore */ }
 
-    // Salvar preferência
-    localStorage.setItem('theme', this.theme);
+    if (persist) {
+      try {
+        localStorage.setItem(this.storageKey, this.theme);
+      } catch (e) { /* ignore */ }
+    }
 
     // Disparar evento customizado
-    document.dispatchEvent(new CustomEvent('themechange', {
-      detail: { theme: this.theme }
-    }));
+    try {
+      document.dispatchEvent(new CustomEvent('themechange', { detail: { theme: this.theme } }));
+    } catch (e) { /* ignore */ }
 
-    // Remover classe de carregamento
-    setTimeout(() => {
-      document.body.classList.remove('theme-loading');
+    // Remover classe de transição após o tempo definido
+    window.setTimeout(() => {
+      root.classList.remove('theme-loading');
     }, this.transitionDuration);
 
-    // Remover qualquer estilo inicial temporário que evitou FOUC
-    try {
-      var initStyle = document.getElementById('initial-theme-style');
-      if (initStyle && initStyle.parentNode) {
-        initStyle.parentNode.removeChild(initStyle);
-      }
-    } catch (e) {/* ignore */ }
+    // Feedback tátil (opcional)
+    this.provideHapticFeedback();
 
-    // Log de performance
-    const elapsed = Date.now() - startTime;
-    if (elapsed > 50) {
-      console.warn(`Aplicação do tema levou ${elapsed}ms`);
-    }
+    // Observabilidade leve (sem logs em produção por padrão)
+    const endTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    void (endTime - startTime);
   }
 
   toggleTheme() {
-    this.theme = this.theme === 'dark' ? 'light' : 'dark';
-    this.applyTheme();
-
-    // Feedback tátil
-    this.provideHapticFeedback();
-
-    // Análise de uso
-    this.trackThemeUsage();
+    this.theme = (this.theme === 'dark') ? 'light' : 'dark';
+    this.applyTheme({ persist: true });
   }
 
   updateIcon() {
@@ -119,261 +117,39 @@ class ThemeManager {
     }
   }
 
-  adjustImagesForTheme() {
-    const images = document.querySelectorAll('.product-image, .product-card img');
-    images.forEach(img => {
-      if (this.theme === 'dark') {
-        // Ajustar contraste para modo escuro
-        img.style.filter = 'brightness(0.9) contrast(1.1)';
-      } else {
-        img.style.filter = 'none';
-      }
-    });
-  }
-
   setupEventListeners() {
-    // Botão de toggle do tema
     const toggleBtn = document.getElementById('darkModeToggle');
     if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => this.toggleTheme());
+      toggleBtn.addEventListener('click', () => this.toggleTheme(), { passive: true });
     }
 
-    // Listener para mudanças na preferência do sistema
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem('theme')) {
+    // Seguir o sistema apenas quando NÃO houver preferência salva
+    if (this.mql) {
+      const handler = (e) => {
+        let hasStored = false;
+        try { hasStored = !!localStorage.getItem(this.storageKey); } catch (err) { /* ignore */ }
+
+        if (hasStored) return;
         this.theme = e.matches ? 'dark' : 'light';
-        this.applyTheme();
-      }
-    });
-  }
+        this.applyTheme({ persist: false });
+      };
 
-  setupTransition() {
-    const style = document.createElement('style');
-    style.textContent = `
-      .theme-loading * {
-        transition: background-color var(--theme-transition, 300ms) ease,
-                    color var(--theme-transition, 300ms) ease,
-                    border-color var(--theme-transition, 300ms) ease,
-                    box-shadow var(--theme-transition, 300ms) ease !important;
+      // Compatibilidade com Safari antigo
+      if (typeof this.mql.addEventListener === 'function') {
+        this.mql.addEventListener('change', handler);
+      } else if (typeof this.mql.addListener === 'function') {
+        this.mql.addListener(handler);
       }
-    `;
-    document.head.appendChild(style);
-  }
-
-  setupThemePreferences() {
-    // Aplicar tema salvo no localStorage
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      this.theme = savedTheme;
-      this.applyTheme();
     }
-  }
-
-  addDarkModeUtilities() {
-    // Adicionar utilitários CSS para modo escuro
-    const style = document.createElement('style');
-    style.textContent = `
-      [data-theme="dark"] {
-        --bg-primary: var(--dark-bg-primary);
-        --bg-secondary: var(--dark-bg-secondary);
-        --bg-tertiary: var(--dark-bg-tertiary);
-        --surface: var(--dark-surface);
-        --surface-hover: var(--dark-surface-hover);
-        --border: var(--dark-border);
-        --border-light: var(--dark-border-light);
-        --text-primary: var(--dark-text-primary);
-        --text-secondary: var(--dark-text-secondary);
-        --text-muted: var(--dark-text-muted);
-        --primary: var(--dark-primary);
-        --primary-hover: var(--dark-primary-hover);
-        --accent: var(--dark-accent);
-        --success: var(--dark-success);
-        --warning: var(--dark-warning);
-        --shadow-sm: var(--dark-shadow-sm);
-        --shadow-md: var(--dark-shadow-md);
-        --shadow-lg: var(--dark-shadow-lg);
-        --shadow-xl: var(--dark-shadow-xl);
-        --shadow-blue: var(--dark-shadow-blue);
-      }
-    `;
-    document.head.appendChild(style);
-  }
-
-  monitorThemePerformance() {
-    // Desativado: monitor de performance de tema (removido logs em produção)
-    return;
   }
 
   provideHapticFeedback() {
-    // Feedback tátil se disponível
     if (navigator.vibrate) {
-      navigator.vibrate(50);
+      navigator.vibrate(30);
     }
-  }
-
-  trackThemeUsage() {
-    // Rastrear uso do tema para analytics
-    const themeUsage = JSON.parse(localStorage.getItem('themeUsage') || '{}');
-    themeUsage[this.theme] = (themeUsage[this.theme] || 0) + 1;
-    localStorage.setItem('themeUsage', JSON.stringify(themeUsage));
   }
 }
 
-// ====================
-// GERENCIADOR DE PRODUTOS
-// ====================
-
-class ProductManager {
-  constructor() {
-    this.products = [
-      {
-        id: 'oring',
-        title: 'Anéis O\'Ring',
-        titlePt: 'Anéis O\'Ring',
-        titleEn: 'O-Ring Seals',
-        titleEs: 'Anillos O-Ring',
-        description: 'Vedação circular em elastômero para aplicações diversas em sistemas hidráulicos e pneumáticos.',
-        descriptionPt: 'Vedação circular em elastômero para aplicações diversas em sistemas hidráulicos e pneumáticos.',
-        descriptionEn: 'Circular seal made of elastomer for various applications in hydraulic and pneumatic systems.',
-        descriptionEs: 'Sello circular fabricado en elastómero para diversas aplicaciones en sistemas hidráulicos y neumáticos.',
-        image: 'assets/ANEL_ORING.webp',
-        category: 'Vedadores Especiais',
-        categoryPt: 'Vedadores Especiais',
-        categoryEn: 'Special Seals',
-        categoryEs: 'Sellos Especiales'
-      },
-      {
-        id: 'd229',
-        title: 'Junta do Cabeçote D229',
-        titlePt: 'Junta do Cabeçote D229',
-        titleEn: 'Cylinder Head Gasket D229',
-        titleEs: 'Empaque de Culata D229',
-        description: 'Junta de cabeçote para motor D229, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        descriptionPt: 'Junta de cabeçote para motor D229, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        descriptionEn: 'Cylinder head gasket for D229 engine, constructed of multi-layered steel, designed to seal combustion chambers, oil ducts and cooling channels between block and cylinder head, withstanding high temperatures and working pressure.',
-        descriptionEs: 'Empaque de culata para motor D229, construido en acero multicapa, diseñado para sellar cámaras de combustión, conductos de aceite y canales de enfriamiento entre bloque y culata, soportando altas temperaturas y presión de trabajo.',
-        image: 'assets/D229.webp',
-        category: 'Junta do Cabeçote',
-        categoryPt: 'Junta do Cabeçote',
-        categoryEn: 'Cylinder Head Gasket',
-        categoryEs: 'Empaque de Culata'
-      },
-      {
-        id: 'x10',
-        title: 'Junta do Cabeçote X10',
-        titlePt: 'Junta do Cabeçote X10',
-        titleEn: 'Cylinder Head Gasket X10',
-        titleEs: 'Empaque de Culata X10',
-        description: 'Junta de cabeçote para motor X10, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        descriptionPt: 'Junta de cabeçote para motor X10, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        descriptionEn: 'Cylinder head gasket for X10 engine, constructed of multi-layered steel, designed to seal combustion chambers, oil ducts and cooling channels between block and cylinder head, withstanding high temperatures and working pressure.',
-        descriptionEs: 'Empaque de culata para motor X10, construido en acero multicapa, diseñado para sellar cámaras de combustión, conductos de aceite y canales de enfriamiento entre bloque y culata, soportando altas temperaturas y presión de trabajo.',
-        image: 'assets/x10.webp',
-        category: 'Junta do Cabeçote',
-        categoryPt: 'Junta do Cabeçote',
-        categoryEn: 'Cylinder Head Gasket',
-        categoryEs: 'Empaque de Culata'
-      },
-      {
-        id: 'x12',
-        title: 'Vedador X12',
-        titlePt: 'Vedador X12',
-        titleEn: 'Seal X12',
-        titleEs: 'Sello X12',
-        description: 'Vedador do conjunto X12 em elastômero, destinado à vedação de óleo/fluido em eixo ou alojamento, resistente a variações térmicas e à ação de derivados de petróleo, evitando vazamentos e contaminação do sistema.',
-        descriptionPt: 'Vedador do conjunto X12 em elastômero, destinado à vedação de óleo/fluido em eixo ou alojamento, resistente a variações térmicas e à ação de derivados de petróleo, evitando vazamentos e contaminação do sistema.',
-        descriptionEn: 'X12 assembly seal made of elastomer, designed for sealing oil or fluid in shafts or housings. Resistant to thermal variations and petroleum derivatives, preventing leaks and system contamination.',
-        descriptionEs: 'Sello del conjunto X12 fabricado en elastómero, destinado a la estanqueidad de aceite o fluido en ejes o alojamientos. Resistente a variaciones térmicas y a derivados del petróleo, evitando fugas y contaminación del sistema.',
-        image: 'assets/VEDADOR_X12.webp',
-        category: 'Vedadores Especiais',
-        categoryPt: 'Vedadores Especiais',
-        categoryEn: 'Special Seals',
-        categoryEs: 'Sellos Especiales'
-      }
-    ];
-
-    this.currentProductIndex = 0;
-    this.init();
-  }
-
-  init() {
-    this.setupEventListeners();
-    this.updateProductDisplay();
-  }
-
-  setupEventListeners() {
-    // Botões de navegação de produtos
-    const prevBtn = document.getElementById('prevProduct');
-    const nextBtn = document.getElementById('nextProduct');
-
-    if (prevBtn) {
-      prevBtn.addEventListener('click', () => this.showPreviousProduct());
-    }
-
-    if (nextBtn) {
-      nextBtn.addEventListener('click', () => this.showNextProduct());
-    }
-
-    // Indicadores de produto
-    const indicators = document.querySelectorAll('.product-indicator');
-    indicators.forEach((indicator, index) => {
-      indicator.addEventListener('click', () => this.showProduct(index));
-    });
-  }
-
-  showProduct(index) {
-    this.currentProductIndex = index;
-    this.updateProductDisplay();
-  }
-
-  showNextProduct() {
-    this.currentProductIndex = (this.currentProductIndex + 1) % this.products.length;
-    this.updateProductDisplay();
-  }
-
-  showPreviousProduct() {
-    this.currentProductIndex = (this.currentProductIndex - 1 + this.products.length) % this.products.length;
-    this.updateProductDisplay();
-  }
-
-  updateProductDisplay() {
-    const product = this.products[this.currentProductIndex];
-    const titleElement = document.getElementById('productTitle');
-    const descriptionElement = document.getElementById('productDescription');
-    const imageElement = document.getElementById('productImage');
-
-    if (titleElement) {
-      titleElement.textContent = product.title;
-    }
-
-    if (descriptionElement) {
-      descriptionElement.textContent = product.description;
-    }
-
-    if (imageElement) {
-      imageElement.src = product.image;
-      imageElement.alt = product.title;
-    }
-
-    // Atualizar indicadores
-    this.updateIndicators();
-  }
-
-  updateIndicators() {
-    const indicators = document.querySelectorAll('.product-indicator');
-    indicators.forEach((indicator, index) => {
-      if (index === this.currentProductIndex) {
-        indicator.classList.add('active');
-      } else {
-        indicator.classList.remove('active');
-      }
-    });
-  }
-
-  getCurrentProduct() {
-    return this.products[this.currentProductIndex];
-  }
-}
 
 // ====================
 // SISTEMA DE BUSCA
@@ -917,59 +693,62 @@ class ScrollManager {
 
 class ProductCarousel {
   constructor() {
-    this.products = [
-      {
-        id: 'oring',
-        title: 'Anéis O\'Ring',
-        description: 'Vedação circular em elastômero para aplicações diversas em sistemas hidráulicos e pneumáticos.',
-        image: 'assets/ANEL_ORING.webp',
-        category: 'Vedadores Especiais'
-      },
-      {
-        id: 'd229',
-        title: 'Junta do Cabeçote D229',
-        description: 'Junta de cabeçote para motor D229, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        image: 'assets/D229.webp',
-        category: 'Junta do Cabeçote'
-      },
-      {
-        id: 'x10',
-        title: 'Junta do Cabeçote X10',
-        description: 'Junta de cabeçote para motor X10, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.',
-        image: 'assets/x10.webp',
-        category: 'Junta do Cabeçote'
-      },
-      {
-        id: 'x12',
-        title: 'Vedador X12',
-        description: 'Vedador do conjunto X12 em elastômero, destinado à vedação de óleo/fluido em eixo ou alojamento, resistente a variações térmicas e à ação de derivados de petróleo, evitando vazamentos e contaminação do sistema.',
-        image: 'assets/VEDADOR_X12.webp',
-        category: 'Vedadores Especiais'
-      }
-    ];
-
-    this.currentIndex = -1; // Começar com -1 para mostrar a intro primeiro
+    this.currentIndex = -1; // -1 = tela inicial (intro)
     this.autoPlayInterval = null;
-    this.autoPlayDelay = 13000; // 13 segundos entre produtos
+    this.autoPlayDelay = 13000; // 13s entre produtos
     this.introShown = false;
+
+    // Monta os produtos a partir do HTML (fonte única de verdade)
+    this.products = this.collectProductsFromDOM();
+
+    // Tempos alinhados às classes CSS existentes (img-fade/text-transition)
+    this.outDelayMs = 260;
+    this.inCleanupMs = 550;
+
     this.init();
   }
 
+  collectProductsFromDOM() {
+    const cards = Array.from(document.querySelectorAll('.product-card[data-id][data-img]'));
+    const map = new Map();
+
+    cards.forEach((card) => {
+      const id = card.getAttribute('data-id');
+      if (!id || map.has(id)) return;
+
+      const title =
+        card.getAttribute('data-title') ||
+        (card.querySelector('.product-name') ? card.querySelector('.product-name').textContent.trim() : id);
+
+      const description =
+        card.getAttribute('data-description') ||
+        (card.querySelector('.product-summary') ? card.querySelector('.product-summary').textContent.trim() : '');
+
+      const image = card.getAttribute('data-img');
+
+      map.set(id, { id, title, description, image, card });
+    });
+
+    return Array.from(map.values());
+  }
+
   init() {
-    this.setupProductCardListeners();
+    this.setupProductCardDelegation();
     this.showSplashScreen();
   }
 
-  setupProductCardListeners() {
-    const productCards = document.querySelectorAll('.product-card');
-    productCards.forEach(card => {
-      card.addEventListener('click', () => {
-        const productId = card.getAttribute('data-id');
-        if (productId) {
-          this.goToProduct(productId);
-        }
-      });
-    });
+  setupProductCardDelegation() {
+    // Delegação de eventos: 1 listener para o catálogo inteiro (melhor performance e manutenção)
+    this.catalogRoot = document.querySelector('.product-catalog') || document;
+    this.onCatalogClick = (e) => {
+      const card = e.target.closest('.product-card');
+      if (!card) return;
+
+      const productId = card.getAttribute('data-id');
+      if (productId) this.goToProduct(productId);
+    };
+
+    this.catalogRoot.addEventListener('click', this.onCatalogClick);
   }
 
   showSplashScreen() {
@@ -987,7 +766,8 @@ class ProductCarousel {
     }
 
     if (descriptionElement) {
-      descriptionElement.textContent = `A ABR desenvolve juntas e retentores com alta tecnologia para garantir a eficiência da vedação, contribuindo para o máximo desempenho do motor, mesmo em condições extremas.
+      descriptionElement.textContent =
+`A ABR desenvolve juntas e retentores com alta tecnologia para garantir a eficiência da vedação, contribuindo para o máximo desempenho do motor, mesmo em condições extremas.
 
 No mercado OEM, é reconhecida como uma das fornecedoras mais conceituadas do setor, resultado do investimento constante em inovação e da conquista de importantes prêmios de qualidade.
 
@@ -1001,19 +781,28 @@ Essa experiência impulsionou a expansão para o Aftermarket, levando ao mercado
       imageElement.classList.add('abr-logo');
     }
 
-    setTimeout(() => {
+    // Mantém o mesmo tempo configurado anteriormente (50s)
+    window.setTimeout(() => {
       this.startCarousel();
-    }, 50000); // 20 segundos para a tela inicial
+    }, 50000);
   }
 
   startCarousel() {
+    if (!this.products.length) return;
+
     this.introShown = true;
-    this.currentIndex = 0; // Começar com o primeiro produto
+    this.currentIndex = 0;
     this.updateProduct();
     this.startAutoPlay();
   }
 
-  updateProduct(direction = 'none') {
+  setActiveCard(productId) {
+    document.querySelectorAll('.product-card.active').forEach((c) => c.classList.remove('active'));
+    const current = this.products.find((p) => p.id === productId);
+    if (current && current.card) current.card.classList.add('active');
+  }
+
+  updateProduct() {
     const productPanel = document.querySelector('.product-panel');
     if (!productPanel) return;
 
@@ -1021,101 +810,107 @@ Essa experiência impulsionou a expansão para o Aftermarket, levando ao mercado
     productPanel.classList.remove('abr-intro');
 
     const product = this.products[this.currentIndex];
+    if (!product) return;
+
     const titleElement = document.getElementById('productTitle');
     const descriptionElement = document.getElementById('productDescription');
     const imageElement = document.getElementById('productImage');
 
-    // Aplicar efeito de fade-out baseado na direção
-    if (direction === 'down') {
-      productPanel.classList.add('fade-out-down');
-    } else if (direction === 'up') {
-      productPanel.classList.add('fade-out-up');
-    } else {
-      productPanel.classList.add('fade-out');
+    // Efeito de saída usando classes que EXISTEM no CSS
+    if (imageElement) {
+      imageElement.classList.remove('img-fade-in');
+      imageElement.classList.add('img-fade-out');
+      imageElement.classList.remove('abr-logo');
+    }
+    if (titleElement) {
+      titleElement.classList.remove('text-transition-in');
+      titleElement.classList.add('text-transition-out');
+    }
+    if (descriptionElement) {
+      descriptionElement.classList.remove('text-transition-in');
+      descriptionElement.classList.add('text-transition-out');
     }
 
-    // Aguardar o fade-out completar antes de atualizar o conteúdo
-    setTimeout(() => {
-      if (titleElement) {
-        titleElement.textContent = product.title;
-      }
-
-      if (descriptionElement) {
-        descriptionElement.textContent = product.description;
-      }
+    window.setTimeout(() => {
+      // Atualizar conteúdo
+      if (titleElement) titleElement.textContent = product.title;
+      if (descriptionElement) descriptionElement.textContent = product.description;
 
       if (imageElement) {
         imageElement.src = product.image;
         imageElement.alt = product.title;
-        imageElement.classList.remove('abr-logo');
+        imageElement.classList.remove('img-fade-out');
+        imageElement.classList.add('img-fade-in');
       }
 
-      // Remover fade-out e aplicar fade-in
-      productPanel.classList.remove('fade-out-up', 'fade-out-down', 'fade-out');
-      if (direction === 'down') {
-        productPanel.classList.add('fade-in-down');
-      } else if (direction === 'up') {
-        productPanel.classList.add('fade-in-up');
-      } else {
-        productPanel.classList.add('fade-in');
+      if (titleElement) {
+        titleElement.classList.remove('text-transition-out');
+        titleElement.classList.add('text-transition-in');
       }
 
-      // Limpar a classe fade-in após a transição
-      setTimeout(() => {
-        productPanel.classList.remove('fade-in-down', 'fade-in-up', 'fade-in');
-      }, 600);
-    }, 300);
+      if (descriptionElement) {
+        descriptionElement.classList.remove('text-transition-out');
+        descriptionElement.classList.add('text-transition-in');
+      }
+
+      // Limpar classes de entrada após a animação
+      window.setTimeout(() => {
+        if (imageElement) imageElement.classList.remove('img-fade-in');
+        if (titleElement) titleElement.classList.remove('text-transition-in');
+        if (descriptionElement) descriptionElement.classList.remove('text-transition-in');
+      }, this.inCleanupMs);
+    }, this.outDelayMs);
+
+    this.setActiveCard(product.id);
   }
 
   nextProduct() {
-    const previousIndex = this.currentIndex;
+    if (!this.products.length) return;
     this.currentIndex = (this.currentIndex + 1) % this.products.length;
-
-    // Determinar direção baseada na posição no array
-    let direction = 'none';
-    if (previousIndex !== -1) {
-      if (this.currentIndex > previousIndex) {
-        direction = 'down'; // Indo para baixo no array
-      } else if (this.currentIndex < previousIndex) {
-        direction = 'up'; // Indo para cima (loop)
-      }
-    }
-
-    this.updateProduct(direction);
+    this.updateProduct();
   }
 
   previousProduct() {
-    this.currentIndex = this.currentIndex === 0 ? this.products.length - 1 : this.currentIndex - 1;
-    this.updateProduct('prev');
+    if (!this.products.length) return;
+    this.currentIndex = (this.currentIndex === 0) ? this.products.length - 1 : this.currentIndex - 1;
+    this.updateProduct();
   }
 
   startAutoPlay() {
     this.stopAutoPlay();
-    this.autoPlayInterval = setInterval(() => {
+    this.autoPlayInterval = window.setInterval(() => {
       this.nextProduct();
     }, this.autoPlayDelay);
   }
 
   stopAutoPlay() {
     if (this.autoPlayInterval) {
-      clearInterval(this.autoPlayInterval);
+      window.clearInterval(this.autoPlayInterval);
       this.autoPlayInterval = null;
     }
   }
 
   goToProduct(productId) {
-    const index = this.products.findIndex(product => product.id === productId);
-    if (index !== -1) {
-      if (!this.introShown) {
-        this.introShown = true;
-      }
-      this.currentIndex = index;
-      this.updateProduct();
-      // Restart autoplay from this product
-      this.startAutoPlay();
+    const index = this.products.findIndex((p) => p.id === productId);
+    if (index === -1) return;
+
+    if (!this.introShown) {
+      this.introShown = true;
+    }
+
+    this.currentIndex = index;
+    this.updateProduct();
+    this.startAutoPlay();
+  }
+
+  destroy() {
+    this.stopAutoPlay();
+    if (this.catalogRoot && this.onCatalogClick) {
+      this.catalogRoot.removeEventListener('click', this.onCatalogClick);
     }
   }
 }
+
 
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('contactForm');
@@ -1210,10 +1005,12 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function validateField(field) {
+    if (!field) return true;
+
     let isValid = true;
     let error = '';
 
-    if (field === privacy) {
+    if (privacy && field === privacy) {
       if (!field.checked) {
         error = 'É necessário aceitar a política de privacidade';
         isValid = false;
@@ -1274,7 +1071,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    if (!validateField(privacy)) {
+    if (privacy && !validateField(privacy)) {
       isValid = false;
     }
 
@@ -1294,8 +1091,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // Preparar para envio
-    replyTo.value = email.value;
-    timestamp.value = new Date().toISOString();
+    if (replyTo) replyTo.value = email.value;
+    if (timestamp) timestamp.value = new Date().toISOString();
 
     // Atualizar estado do botão
     setLoadingState(true);
@@ -1387,7 +1184,7 @@ document.addEventListener('DOMContentLoaded', function () {
     hideMessages();
 
     // Limpar erros
-    [nome, email, telefone, assunto, mensagem, privacy].forEach(clearFieldError);
+    [nome, email, telefone, assunto, mensagem, privacy].filter(Boolean).forEach(clearFieldError);
 
     // Resetar cores
     [nome, email, telefone, assunto, mensagem].forEach(field => {
@@ -2073,7 +1870,6 @@ class RepresentantesManager {
 document.addEventListener('DOMContentLoaded', () => {
   // Inicializar gerenciadores
   window.themeManager = new ThemeManager();
-  window.productManager = new ProductManager();
   window.searchManager = new SearchManager();
   window.navigationManager = new NavigationManager();
   window.catalogFeatures = new CatalogFeatures();
@@ -2091,7 +1887,6 @@ document.addEventListener('DOMContentLoaded', () => {
 // ====================
 
 window.ThemeManager = ThemeManager;
-window.ProductManager = ProductManager;
 window.SearchManager = SearchManager;
 window.NavigationManager = NavigationManager;
 window.CatalogFeatures = CatalogFeatures;

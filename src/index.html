@@ -66,11 +66,15 @@
     <script>
         (function () {
             try {
-                var theme = localStorage.getItem('theme');
-                if (!theme) {
-                    theme = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-                }
-                // Add a minimal inline style to avoid flash while full CSS loads
+                var stored = localStorage.getItem('theme');
+                var theme = stored || ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
+
+                // Apply theme attribute early to avoid FOUC and keep CSS selectors consistent
+                document.documentElement.setAttribute('data-theme', theme);
+                // Improve native form controls rendering in supported browsers
+                document.documentElement.style.colorScheme = theme;
+
+                // Minimal inline paint while full CSS loads
                 var style = document.createElement('style');
                 style.id = 'initial-theme-style';
                 if (theme === 'dark') {
@@ -79,9 +83,9 @@
                     style.textContent = 'body{background:#ffffff;color:#0b1533;}';
                 }
                 document.head.appendChild(style);
-            } catch (e) {/* ignore */ }
+            } catch (e) { /* ignore */ }
         })();
-    </script>
+</script>
 
     <link rel="stylesheet" href="styles/index.css" />
 
@@ -171,7 +175,7 @@
                 <div class="image-viewer">
                     <div class="image-container" style="background: none; box-shadow: none; border: none; padding: 0;">
                         <div class="floating-image-wrapper">
-                            <img id="productImage" class="product-image" src="assets/D229.webp"
+                            <img id="productImage" decoding="async" fetchpriority="high" loading="eager" class="product-image" src="assets/D229.webp"
                                 alt="Junta do Cabeçote D229 - Vista técnica" />
                             <div class="floating-shadow"></div>
                         </div>
@@ -545,7 +549,7 @@
                                     Navegue por todos os produtos online com busca avançada e filtros
                                 </p>
                                 <div class="action-link">
-                                    <a href="http://abr-catalogo.vercel.app/" target="_blank" class="link-with-icon">
+                                    <a href="https://abr-catalogo.vercel.app/" target="_blank" class="link-with-icon">
                                         <span>Catálogo Digital</span>
                                         <i class="fa-solid fa-external-link-alt"></i>
                                     </a>
@@ -1383,7 +1387,6 @@
             </button>
 
             <script src="js/index.js"></script>
-            <script src="js/contato.js"></script>
 </body>
 
 </html>
