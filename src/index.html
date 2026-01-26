@@ -22,7 +22,7 @@
     <!-- Preload main image for better LCP -->
     <link rel="preload" as="image" href="assets/D229.webp" />
 
-    <!-- Schema.org básico para o Google entender o que é o site (sem exagero) -->
+    <!-- Schema.org básico -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -38,6 +38,7 @@
       }
     }
     </script>
+
     <script defer src="/_vercel/insights/script.js"></script>
     <script defer src="/_vercel/speed-insights/script.js"></script>
 
@@ -69,12 +70,9 @@
                 var stored = localStorage.getItem('theme');
                 var theme = stored || ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light');
 
-                // Apply theme attribute early to avoid FOUC and keep CSS selectors consistent
                 document.documentElement.setAttribute('data-theme', theme);
-                // Improve native form controls rendering in supported browsers
                 document.documentElement.style.colorScheme = theme;
 
-                // Minimal inline paint while full CSS loads
                 var style = document.createElement('style');
                 style.id = 'initial-theme-style';
                 if (theme === 'dark') {
@@ -85,10 +83,9 @@
                 document.head.appendChild(style);
             } catch (e) { /* ignore */ }
         })();
-</script>
+    </script>
 
     <link rel="stylesheet" href="styles/index.css" />
-
 </head>
 
 <body>
@@ -146,8 +143,8 @@
                 <!-- Painel de Produto (Esquerda) -->
                 <section class="product-panel">
                     <div class="product-header">
-                        <div class="product-badge">
-                        </div>
+                        <div class="product-badge"></div>
+
                         <h1 id="productTitle" class="product-title">
                             Junta do Cabeçote D229
                         </h1>
@@ -158,9 +155,6 @@
 
                     <div class="product-details">
                         <div class="description-section">
-                            <!-- <h3 class="section-title">
-                                Descrição
-                            </h3> -->
                             <p id="productDescription" class="product-description">
                                 Junta de cabeçote para motor D229, construída em aço multicamadas, projetada para vedar
                                 câmaras de combustão,
@@ -175,7 +169,8 @@
                 <div class="image-viewer">
                     <div class="image-container" style="background: none; box-shadow: none; border: none; padding: 0;">
                         <div class="floating-image-wrapper">
-                            <img id="productImage" decoding="async" fetchpriority="high" loading="eager" class="product-image" src="assets/D229.webp"
+                            <img id="productImage" decoding="async" fetchpriority="high" loading="eager"
+                                class="product-image" src="assets/D229.webp"
                                 alt="Junta do Cabeçote D229 - Vista técnica" />
                             <div class="floating-shadow"></div>
                         </div>
@@ -205,7 +200,6 @@
                                     data-description="Anel O’ring 113 utilizado em sistemas de óleo, combustível ou arrefecimento para vedação entre componentes, evitando vazamentos em ligações fixas ou móveis.">
                                     <div class="card-header">
                                         <span class="product-code">REF: 904931361131</span>
-
                                     </div>
                                     <h4 class="product-name">
                                         Anel O'ring 113
@@ -227,7 +221,6 @@
                                     data-description="Vedador do conjunto X12 em elastômero, destinado à vedação de óleo/fluido em eixo ou alojamento, resistente a variações térmicas e à ação de derivados de petróleo, evitando vazamentos e contaminação do sistema.">
                                     <div class="card-header">
                                         <span class="product-code">REF: 7001035C2</span>
-
                                     </div>
                                     <h4 class="product-name">
                                         Vedador X12
@@ -242,7 +235,6 @@
                                     data-description="Junta de cabeçote para motor X10, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.">
                                     <div class="card-header">
                                         <span class="product-code">REF: 961058540184</span>
-
                                     </div>
                                     <h4 class="product-name">
                                         Junta de cabeçote X10
@@ -257,7 +249,6 @@
                                     data-description="Junta de cabeçote para motor D229, construída em aço multicamadas, projetada para vedar câmaras de combustão, dutos de óleo e canais de arrefecimento entre bloco e cabeçote, suportando altas temperaturas e pressão de trabalho.">
                                     <div class="card-header">
                                         <span class="product-code">REF: 922908540194</span>
-
                                     </div>
                                     <h4 class="product-name">
                                         Junta do Cabeçote D229
@@ -708,7 +699,6 @@
                                 (de premiações mundiais a menções honrosas). A iniciativa tem como objetivo divulgar
                                 anualmente as 50 empresas com melhor desempenho em qualidade e parceria, servindo como
                                 indicador da evolução e da imagem dessas fornecedoras no Brasil.
-
                             </p>
                         </article>
 
@@ -1029,7 +1019,6 @@
                                 </div>
                             </div>
 
-
                         </div>
                     </div>
 
@@ -1053,7 +1042,8 @@
                                         <i class="fa-solid fa-phone"></i>
                                         <div>
                                             <p class="info-label">Telefone</p>
-                                            <p class="info-value">(81) 3033-2911 | (81) 98827-6565 | (81) 99697-3041</p>
+                                            <p class="info-value">(81) 3033-2911 | (81) 98827-6565 | (81) 99697-3041
+                                            </p>
                                         </div>
                                     </div>
                                     <div class="info-item">
@@ -1226,6 +1216,7 @@
                                 <label for="timestamp">Timestamp</label>
                                 <input type="text" id="timestamp" name="timestamp" value="" tabindex="-1" />
                             </div>
+
                             <!-- Botões de ação -->
                             <div class="form-actions"
                                 style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
@@ -1357,16 +1348,18 @@
             </footer>
 
             <!-- Modal de Download de PDFs -->
-            <div id="pdfModal" class="modal">
+            <div id="pdfModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true"
+                aria-label="Download de Catálogos PDF">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2>Download de Catálogos PDF</h2>
-                        <span class="close-modal" id="closeModal">&times;</span>
+                        <span class="close-modal" id="closeModal" role="button" tabindex="0"
+                            aria-label="Fechar modal">&times;</span>
                     </div>
                     <div class="modal-body">
                         <div class="modal-tabs">
-                            <button class="tab-button active" data-tab="leve">Linha Leve</button>
-                            <button class="tab-button" data-tab="pesada">Linha Pesada</button>
+                            <button class="tab-button active" data-tab="leve" type="button">Linha Leve</button>
+                            <button class="tab-button" data-tab="pesada" type="button">Linha Pesada</button>
                         </div>
                         <div id="leve-tab" class="tab-content active">
                             <ul class="pdf-list">

@@ -1336,6 +1336,16 @@ class PDFModalManager {
       }
     });
 
+    // Segurança: se por algum motivo o scroll ficou travado sem o modal estar aberto,
+    // destravar imediatamente. Isso evita o bug de "scroll só funciona na barra".
+    this.ensureScrollUnlocked();
+
+    // Em navegação por histórico/bfcache (iOS/Safari), garantir que o scroll não fique preso
+    window.addEventListener('pageshow', () => this.ensureScrollUnlocked());
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) this.ensureScrollUnlocked();
+    });
+
     // Populate lists with enhanced links
     this.populatePDFLists();
   }
@@ -1402,22 +1412,27 @@ class PDFModalManager {
   }
 
   closeModal() {
-    if (!this.modal || !this.isOpen) return;
+    if (!this.modal) return;
 
+    const wasOpen = this.isOpen;
+
+    // Sempre garantir que o modal fique fechado visualmente
     this.modal.style.display = 'none';
     this.isOpen = false;
 
     // Mostrar novamente o header da página principal
     this.showMainHeader();
 
-    // Restaurar scroll da página
+    // Restaurar scroll da página (mesmo se o estado interno estiver fora de sincronia)
     this.restoreBackgroundScroll();
 
-    this.provideHapticFeedback();
-    // Return focus to trigger button
-    if (this.downloadBtn) this.downloadBtn.focus();
-    // Announce to screen readers
-    this.announceToScreenReader('Modal de download de PDFs fechado');
+    if (wasOpen) {
+      this.provideHapticFeedback();
+      // Return focus to trigger button
+      if (this.downloadBtn) this.downloadBtn.focus();
+      // Announce to screen readers
+      this.announceToScreenReader('Modal de download de PDFs fechado');
+    }
   }
 
   preventBackgroundScroll() {
@@ -1479,6 +1494,7 @@ class PDFModalManager {
     // Prevenir scroll via múltiplas técnicas
     this.scrollHandlers = {
       wheel: (e) => {
+        if (!this.isOpen) return;
         if (!this.isModalContent(e.target)) {
           e.preventDefault();
           e.stopPropagation();
@@ -1487,6 +1503,7 @@ class PDFModalManager {
       },
 
       touchmove: (e) => {
+        if (!this.isOpen) return;
         if (!this.isModalContent(e.target)) {
           e.preventDefault();
           e.stopPropagation();
@@ -1495,6 +1512,7 @@ class PDFModalManager {
       },
 
       touchstart: (e) => {
+        if (!this.isOpen) return;
         // Permitir touch dentro do modal, mas prevenir zoom
         if (!this.isModalContent(e.target)) {
           if (e.touches.length > 1) {
@@ -1504,6 +1522,7 @@ class PDFModalManager {
       },
 
       keydown: (e) => {
+        if (!this.isOpen) return;
         const scrollKeys = [
           'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
           'PageUp', 'PageDown', 'Home', 'End', ' ',
@@ -1522,6 +1541,7 @@ class PDFModalManager {
       },
 
       contextmenu: (e) => {
+        if (!this.isOpen) return;
         // Prevenir menu de contexto que pode causar scroll
         if (!this.isModalContent(e.target)) {
           e.preventDefault();

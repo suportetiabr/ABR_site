@@ -81,7 +81,6 @@ body {
         color var(--theme-transition) ease;
     /* Adicionar para melhor performance de rolagem */
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: none;
 }
 
 /* Transições apenas durante alternância de tema (evita custo permanente em todos os elementos) */
@@ -643,10 +642,9 @@ section[id] {
 
 @media (min-width: 769px) {
     .catalog-sidebar {
-        position: sticky;
-        top: 100px;
-        max-height: calc(100vh - 140px);
-        overflow-y: auto;
+        position: relative;
+        max-height: none;
+        overflow-y: visible;
         padding-right: 8px;
     }
 }
