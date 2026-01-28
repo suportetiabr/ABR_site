@@ -19,6 +19,11 @@
     <!-- Favicon simples (logo na aba) -->
     <link rel="icon" type="image/png" href="assets/favicon.png" />
 
+    <!-- Security headers (as meta tags) -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+
     <!-- Preload main image for better LCP -->
     <link rel="preload" as="image" href="assets/D229.webp" />
 
@@ -417,7 +422,7 @@
 
                     <div class="markets-image">
                         <img src="assets/mercados_atendidos.webp" alt="Mercados Atendidos" loading="lazy"
-                            decoding="async">
+                            decoding="async" width="268" height="268" />
                     </div>
                 </div>
             </section>
@@ -1605,35 +1610,7 @@
                 });
             </script>
 
-            <!-- Representantes toggle -->
-            <script>
-                const regionToggles = document.querySelectorAll('.region-toggle');
-
-                regionToggles.forEach(button => {
-                    button.addEventListener('click', function () {
-                        const contentId = this.getAttribute('aria-controls');
-                        const content = document.getElementById(contentId);
-
-                        if (!content) return;
-
-                        const isOpen = content.classList.contains('show');
-
-                        // Fechar todos os outros
-                        document.querySelectorAll('.region-content').forEach(el => {
-                            el.classList.remove('show');
-                        });
-                        document.querySelectorAll('.region-toggle').forEach(el => {
-                            el.setAttribute('aria-expanded', 'false');
-                        });
-
-                        // Abrir/Fechar este
-                        if (!isOpen) {
-                            content.classList.add('show');
-                            this.setAttribute('aria-expanded', 'true');
-                        }
-                    });
-                });
-            </script>
+            <!-- Representantes toggle (gerenciado pela classe RepresentantesManager em index.js) -->
 </body>
 
 </html>

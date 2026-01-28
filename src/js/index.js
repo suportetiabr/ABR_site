@@ -144,8 +144,12 @@ class ThemeManager {
   }
 
   provideHapticFeedback() {
-    if (navigator.vibrate) {
-      navigator.vibrate(30);
+    try {
+      if (navigator.vibrate && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(30);
+      }
+    } catch (e) {
+      // Vibration API pode estar restrita em alguns contextos
     }
   }
 }
@@ -1583,6 +1587,18 @@ class PDFModalManager {
     );
   }
 
+  ensureScrollUnlocked() {
+    // Garantir que o scroll não fique travado mesmo se o modal estiver fechado
+    if (!this.isOpen) {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      if (this.originalBodyStyle) {
+        Object.assign(document.body.style, this.originalBodyStyle);
+      }
+      this.scrollLocked = false;
+    }
+  }
+
   hideMainHeader() {
     // Esconder o header da página principal
     const header = document.querySelector('.header');
@@ -1596,6 +1612,16 @@ class PDFModalManager {
     const header = document.querySelector('.header');
     if (header) {
       header.style.display = '';
+    }
+  }
+
+  provideHapticFeedback() {
+    try {
+      if (navigator.vibrate && typeof navigator.vibrate === 'function') {
+        navigator.vibrate(50);
+      }
+    } catch (e) {
+      // Vibration API pode estar restrita em alguns contextos
     }
   }
 
@@ -1851,6 +1877,47 @@ window.ProductCarousel = ProductCarousel;
 window.PDFModalManager = PDFModalManager;
 window.PressCardsManager = PressCardsManager;
 window.RepresentantesManager = RepresentantesManager;
+
+// ====================
+// GERENCIADOR DE REPRESENTANTES
+// ====================
+
+class RepresentantesManager {
+  constructor() {
+    this.regionToggles = document.querySelectorAll('.region-toggle');
+    this.init();
+  }
+
+  init() {
+    this.regionToggles.forEach(button => {
+      button.addEventListener('click', (e) => this.handleToggleClick(e));
+    });
+  }
+
+  handleToggleClick(e) {
+    const button = e.currentTarget;
+    const contentId = button.getAttribute('aria-controls');
+    const content = document.getElementById(contentId);
+
+    if (!content) return;
+
+    const isOpen = content.classList.contains('show');
+
+    // Fechar todos os outros
+    document.querySelectorAll('.region-content').forEach(el => {
+      el.classList.remove('show');
+    });
+    document.querySelectorAll('.region-toggle').forEach(el => {
+      el.setAttribute('aria-expanded', 'false');
+    });
+
+    // Abrir/Fechar este
+    if (!isOpen) {
+      content.classList.add('show');
+      button.setAttribute('aria-expanded', 'true');
+    }
+  }
+}
 
 // ====================
 // VÍDEO LAZY LOAD COM CONSENTIMENTO
