@@ -165,7 +165,7 @@ svg {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 40px;
+    gap: 60px;
 }
 
 .logo-container {
@@ -241,7 +241,7 @@ html[data-theme="dark"] .back-to-top {
 /* Menu de Navegação */
 .menu {
     display: flex;
-    gap: 8px;
+    gap: 2px;
     align-items: center;
 }
 
@@ -2952,6 +2952,17 @@ html[data-theme="dark"] #representantes .cities-text {
 
     .menu-toggle {
         display: flex;
+        order: 3;
+    }
+
+    .controls {
+        order: 2;
+        margin-left: auto;
+        gap: 8px;
+    }
+
+    .logo-container {
+        order: 1;
     }
 
     .menu {
